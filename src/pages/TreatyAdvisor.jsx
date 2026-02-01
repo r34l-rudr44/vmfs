@@ -575,7 +575,9 @@ ${html}
                     transform: "translateX(-50%)",
                     width: "700px",
                     height: "500px",
-                    background: "radial-gradient(ellipse, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
+                    background: theme === 'light'
+                        ? "radial-gradient(ellipse, rgba(30, 64, 175, 0.08) 0%, transparent 70%)"
+                        : "radial-gradient(ellipse, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
                     pointerEvents: "none",
                     zIndex: 0,
                 }} />
@@ -592,8 +594,12 @@ ${html}
                         alignItems: "center",
                         gap: "8px",
                         padding: "8px 16px",
-                        background: "rgba(50, 215, 75, 0.08)",
-                        border: "1px solid rgba(50, 215, 75, 0.15)",
+                        background: theme === 'light'
+                            ? "rgba(30, 64, 175, 0.1)"
+                            : "rgba(50, 215, 75, 0.08)",
+                        border: theme === 'light'
+                            ? "1px solid rgba(30, 64, 175, 0.2)"
+                            : "1px solid rgba(50, 215, 75, 0.15)",
                         borderRadius: "100px",
                         marginBottom: "28px",
                     }}>
@@ -631,8 +637,9 @@ ${html}
                     marginBottom: "32px",
                     position: "relative",
                     zIndex: 1,
-                    background: "rgba(255, 255, 255, 0.02)",
+                    background: theme === 'light' ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.02)",
                     border: "1px solid var(--border)",
+                    boxShadow: theme === 'light' ? "var(--shadow-md)" : "none",
                 }}>
                     <div style={{ marginBottom: "24px" }}>
                         <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px" }}>
@@ -827,10 +834,15 @@ ${html}
                         {/* One-Pager Generation */}
                         <BentoCard hoverable={false} style={{ 
                             marginBottom: "32px", 
-                            background: "linear-gradient(135deg, rgba(50, 215, 75, 0.1) 0%, rgba(50, 215, 75, 0.03) 100%)",
-                            border: "1px solid rgba(50, 215, 75, 0.2)",
+                            background: theme === 'light'
+                                ? "linear-gradient(135deg, rgba(30, 64, 175, 0.12) 0%, rgba(30, 64, 175, 0.04) 100%)"
+                                : "linear-gradient(135deg, rgba(50, 215, 75, 0.1) 0%, rgba(50, 215, 75, 0.03) 100%)",
+                            border: theme === 'light'
+                                ? "1px solid rgba(30, 64, 175, 0.25)"
+                                : "1px solid rgba(50, 215, 75, 0.2)",
                             position: "relative",
                             zIndex: 1,
+                            boxShadow: theme === 'light' ? "var(--shadow-md)" : "none",
                         }}>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "20px" }}>
                                 <div style={{ flex: 1, minWidth: "280px" }}>
@@ -922,8 +934,9 @@ ${html}
                             marginBottom: "32px",
                             position: "relative",
                             zIndex: 1,
-                            background: "rgba(255, 255, 255, 0.02)",
+                            background: theme === 'light' ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.02)",
                             border: "1px solid var(--border)",
+                            boxShadow: theme === 'light' ? "var(--shadow-md)" : "none",
                         }}>
                             <div style={{ marginBottom: "24px" }}>
                                 <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px" }}>
@@ -937,7 +950,9 @@ ${html}
                                 {result.analysis.requirements.slice(0, 5).map((req, i) => (
                                     <div key={i} style={{
                                         padding: "16px 18px",
-                                        background: "rgba(255, 255, 255, 0.03)",
+                                        background: theme === 'light' 
+                                            ? "rgba(30, 64, 175, 0.04)"
+                                            : "rgba(255, 255, 255, 0.03)",
                                         borderRadius: "12px",
                                         fontSize: "14px",
                                         color: "var(--text)",
@@ -988,8 +1003,9 @@ ${html}
                                 marginBottom: "24px",
                                 position: "relative",
                                 zIndex: 1,
-                                background: "rgba(255, 255, 255, 0.02)",
+                                background: theme === 'light' ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.02)",
                                 border: "1px solid var(--border)",
+                                boxShadow: theme === 'light' ? "var(--shadow-sm)" : "none",
                             }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "24px" }}>
                                     <div style={{ flex: 1 }}>
@@ -1082,8 +1098,9 @@ ${html}
                         marginTop: "48px",
                         position: "relative",
                         zIndex: 1,
-                        background: "rgba(255, 255, 255, 0.02)",
+                        background: theme === 'light' ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.02)",
                         border: "1px solid var(--border)",
+                        boxShadow: theme === 'light' ? "var(--shadow-md)" : "none",
                     }}>
                         <div style={{ marginBottom: "20px" }}>
                             <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px", color: "var(--text)" }}>

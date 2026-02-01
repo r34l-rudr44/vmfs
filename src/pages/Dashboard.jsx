@@ -81,11 +81,11 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
                 <circle cx={center} cy={center} r={radius + 15} fill="url(#radarGlow)" />
 
                 {[1, 2, 3, 4, 5].map(l => (
-                    <circle key={l} cx={center} cy={center} r={(l / 5) * radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+                    <circle key={l} cx={center} cy={center} r={(l / 5) * radius} fill="none" stroke="var(--border-subtle)" strokeWidth="1" />
                 ))}
                 {dimensions.map((_, i) => {
                     const p = getPoint(5, i);
-                    return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.08)" />;
+                    return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="var(--border-subtle)" />;
                 })}
 
                 {dimensions.map((d, i) => {
@@ -98,8 +98,8 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
                     );
                 })}
 
-                {hasCustom && <polygon points={getPolygon(mechanism.vmfsScores)} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="4" />}
-                <polygon points={getPolygon(scores)} fill="rgba(50, 215, 75, 0.1)" stroke="var(--accent)" strokeWidth="2" style={{ transition: dragging === null ? "all 0.2s" : "none" }} />
+                {hasCustom && <polygon points={getPolygon(mechanism.vmfsScores)} fill="none" stroke="var(--border)" strokeWidth="1" strokeDasharray="4" />}
+                <polygon points={getPolygon(scores)} fill="var(--accent-glow)" stroke="var(--accent)" strokeWidth="2" style={{ transition: dragging === null ? "all 0.2s" : "none" }} />
 
                 {dimensions.map((d, i) => {
                     const p = getPoint(scores[d.key] || 0, i);
@@ -151,12 +151,12 @@ function ScatterMatrix({ mechanisms, selected, onSelect }) {
                 </linearGradient>
             </defs>
 
-            <rect x={xScale(3)} y={pad} width={width - pad - xScale(3)} height={yScale(3) - pad} fill="url(#quadrantGrad)" rx="6" />
+            <rect x={xScale(3)} y={pad} width={width - pad - xScale(3)} height={yScale(3) - pad} fill="var(--accent-glow)" rx="6" opacity="0.3" />
 
             {[1, 2, 3, 4, 5].map(v => (
                 <g key={v}>
-                    <line x1={xScale(v)} y1={pad} x2={xScale(v)} y2={height - pad} stroke="rgba(255,255,255,0.04)" />
-                    <line x1={pad} y1={yScale(v)} x2={width - pad} y2={yScale(v)} stroke="rgba(255,255,255,0.04)" />
+                    <line x1={xScale(v)} y1={pad} x2={xScale(v)} y2={height - pad} stroke="var(--border-subtle)" />
+                    <line x1={pad} y1={yScale(v)} x2={width - pad} y2={yScale(v)} stroke="var(--border-subtle)" />
                     <text x={xScale(v)} y={height - pad + 14} fill="var(--text-tertiary)" fontSize="9" textAnchor="middle">{v}</text>
                     <text x={pad - 10} y={yScale(v) + 3} fill="var(--text-tertiary)" fontSize="9" textAnchor="end">{v}</text>
                 </g>

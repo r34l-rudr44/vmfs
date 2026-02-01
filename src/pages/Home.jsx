@@ -32,7 +32,9 @@ export default function HomePage({ theme, toggleTheme }) {
                     transform: "translateX(-50%)",
                     width: "800px",
                     height: "600px",
-                    background: "radial-gradient(ellipse, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
+                    background: theme === 'light' 
+                        ? "radial-gradient(ellipse, rgba(30, 64, 175, 0.08) 0%, transparent 70%)"
+                        : "radial-gradient(ellipse, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
                     pointerEvents: "none",
                 }} />
 
@@ -42,8 +44,12 @@ export default function HomePage({ theme, toggleTheme }) {
                     alignItems: "center",
                     gap: "8px",
                     padding: "8px 16px",
-                    background: "rgba(50, 215, 75, 0.08)",
-                    border: "1px solid rgba(50, 215, 75, 0.15)",
+                    background: theme === 'light'
+                        ? "rgba(30, 64, 175, 0.1)"
+                        : "rgba(50, 215, 75, 0.08)",
+                    border: theme === 'light'
+                        ? "1px solid rgba(30, 64, 175, 0.2)"
+                        : "1px solid rgba(50, 215, 75, 0.15)",
                     borderRadius: "100px",
                     marginBottom: "24px",
                     animation: "fadeIn 0.6s var(--ease)",
@@ -136,16 +142,21 @@ export default function HomePage({ theme, toggleTheme }) {
             }}>
                 <div style={{
                     padding: "32px",
-                    background: "rgba(255, 255, 255, 0.02)",
+                    background: theme === 'light'
+                        ? "rgba(255, 255, 255, 0.9)"
+                        : "rgba(255, 255, 255, 0.02)",
                     borderRadius: "20px",
                     border: "1px solid var(--border)",
+                    boxShadow: theme === 'light' ? "var(--shadow-md)" : "none",
                 }}>
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
                         <div style={{
                             width: "40px",
                             height: "40px",
                             borderRadius: "10px",
-                            background: "rgba(50, 215, 75, 0.1)",
+                            background: theme === 'light'
+                                ? "rgba(30, 64, 175, 0.12)"
+                                : "rgba(50, 215, 75, 0.1)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -223,9 +234,14 @@ export default function HomePage({ theme, toggleTheme }) {
             }}>
                 <div style={{
                     padding: "40px",
-                    background: "linear-gradient(180deg, rgba(50, 215, 75, 0.05) 0%, transparent 100%)",
-                    border: "1px solid rgba(50, 215, 75, 0.1)",
+                    background: theme === 'light'
+                        ? "linear-gradient(180deg, rgba(30, 64, 175, 0.08) 0%, rgba(30, 64, 175, 0.02) 100%)"
+                        : "linear-gradient(180deg, rgba(50, 215, 75, 0.05) 0%, transparent 100%)",
+                    border: theme === 'light'
+                        ? "1px solid rgba(30, 64, 175, 0.15)"
+                        : "1px solid rgba(50, 215, 75, 0.1)",
                     borderRadius: "24px",
+                    boxShadow: theme === 'light' ? "var(--shadow-sm)" : "none",
                 }}>
                     <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "12px" }}>Build Your Strategy</h2>
                     <p style={{ fontSize: "15px", color: "var(--text-secondary)", marginBottom: "24px", lineHeight: 1.6 }}>
