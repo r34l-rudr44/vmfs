@@ -26,7 +26,6 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
           background: "rgba(0,0,0,0.7)",
           backdropFilter: "blur(12px)",
           zIndex: 100,
-          animation: "fadeIn 0.2s var(--ease)",
         }}
       />
       <div
@@ -43,27 +42,28 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
           border: "1px solid var(--border)",
           overflow: "hidden",
           zIndex: 101,
-          animation: "scaleIn 0.3s var(--ease)",
         }}
       >
         {/* Header */}
         <div
           style={{
             padding: "24px 28px",
+            paddingRight: "60px",
             borderBottom: "1px solid var(--border)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
+            position: "relative",
           }}
         >
-          <div>
+          <div style={{ flex: 1, paddingRight: "20px" }}>
             <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px" }}>{mechanism.shortName}</h2>
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", maxWidth: "500px", lineHeight: 1.6 }}>
               {mechanism.definition}
             </p>
           </div>
 
-          <div style={{ textAlign: "right" }}>
+          <div style={{ textAlign: "right", minWidth: "100px" }}>
             <div
               style={{
                 fontSize: "42px",
@@ -75,27 +75,40 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
                     : mechanism.vmfsScores.weightedAvg >= 2.5
                     ? "var(--orange)"
                     : "var(--red)",
+                lineHeight: 1,
               }}
             >
               {mechanism.vmfsScores.weightedAvg.toFixed(1)}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase" }}>Weighted Avg</div>
+            <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", marginTop: "4px" }}>Weighted Avg</div>
           </div>
 
           <button
             onClick={onClose}
             style={{
               position: "absolute",
-              top: "16px",
-              right: "16px",
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
+              top: "20px",
+              right: "20px",
+              width: "36px",
+              height: "36px",
+              borderRadius: "8px",
               background: "rgba(255,255,255,0.08)",
-              border: "none",
+              border: "1px solid var(--border)",
               color: "var(--text-secondary)",
               cursor: "pointer",
-              fontSize: "18px",
+              fontSize: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.12)";
+              e.currentTarget.style.color = "var(--text)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+              e.currentTarget.style.color = "var(--text-secondary)";
             }}
           >
             ×

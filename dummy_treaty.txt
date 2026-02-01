@@ -1,0 +1,76 @@
+INTERNATIONAL TREATY ON ADVANCED AI SYSTEM VERIFICATION
+Treaty on the Verification of Frontier AI Systems (TVFAIS)
+
+PREAMBLE
+
+The Parties to this Treaty, recognizing the transformative potential of frontier artificial intelligence systems and their capacity to benefit humanity, while acknowledging the significant risks posed by unregulated development and deployment, have agreed to establish robust verification mechanisms.
+
+ARTICLE 1: VERIFICATION REQUIREMENTS
+
+Section 1.1: Compute Monitoring
+- All Parties shall implement mandatory compute monitoring for AI systems exceeding 10^24 FLOPs
+- Developers must install secure hardware-based monitoring systems
+- Compute usage above 10^25 FLOPs must be reported within 30 days
+- Compute verification above 10^26 FLOPs triggers mandatory international inspection
+
+Section 1.2: Model Lineage Tracking
+- Developers must maintain comprehensive model lineage records including:
+  * Complete training dataset documentation
+  * All architectural modifications and version history
+  * Sources of training data and data provenance
+  * Details of all fine-tuning and post-training modifications
+- Model lineage must be verifiable through cryptographic attestation
+- All Frontier AI Systems must be registered in a global model registry
+
+Section 1.3: Deployment Controls
+- No Frontier AI System may be deployed without:
+  * Prior safety assessment and risk evaluation
+  * Independent third-party audit
+  * Government approval
+  * Notification to all Parties at least 90 days before deployment
+- Deployment in critical infrastructure requires enhanced verification
+- Military deployment requires explicit authorization and human oversight
+
+Section 1.4: Post-Training Safety Modifications
+- Developers must implement mechanisms for post-training safety modifications
+- Any modification increasing capabilities by more than 10% requires re-verification
+- Technical standards must be established for maintaining model integrity
+
+ARTICLE 2: VERIFICATION MECHANISMS
+
+Parties agree to implement:
+1. Hardware-Based Compute Monitoring using secure enclaves
+2. Model Watermarking for traceability
+3. Third-Party Audits by independent experts
+4. Declaration Regimes for mandatory self-reporting
+5. Remote Sensing of large-scale compute facilities
+
+ARTICLE 3: IMPLEMENTATION PRIORITIES
+
+Verification mechanisms must balance:
+- Technical feasibility with current technology
+- Effectiveness in detecting violations
+- Cost and accessibility for all Parties
+- Respect for national sovereignty
+
+Priority given to mechanisms that are:
+- Technically mature and proven
+- Accessible to both developed and developing nations
+- Minimally intrusive to proprietary information
+- Reliable and auditable
+
+ARTICLE 4: GLOBAL SOUTH CONSIDERATIONS
+
+- Verification requirements must be accessible to developing nations
+- Developed Parties shall provide technical assistance and financial support
+- Mechanisms must minimize barriers to entry for smaller developers
+- Ensure equitable participation in AI governance
+
+ARTICLE 5: COMPLIANCE
+
+- Parties shall establish national regulatory bodies
+- Violations may result in suspension, penalties, or trade restrictions
+- International AI Verification Agency (IAVA) shall monitor compliance
+- IAVA inspectors have right to access facilities and review documentation
+
+This Treaty establishes comprehensive verification requirements emphasizing compute monitoring, model lineage tracking, deployment controls, and post-training safety modifications while balancing technical feasibility with political tractability.
