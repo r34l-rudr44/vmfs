@@ -560,35 +560,65 @@ ${html}
 
     return (
         <Layout theme={theme} toggleTheme={toggleTheme}>
-            <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "60px 24px" }}>
+            <div style={{ 
+                maxWidth: "1000px", 
+                margin: "0 auto", 
+                padding: "80px 24px",
+                position: "relative",
+                minHeight: "calc(100vh - 64px)",
+            }}>
+                {/* Background gradient */}
+                <div style={{
+                    position: "absolute",
+                    top: "10%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    width: "700px",
+                    height: "500px",
+                    background: "radial-gradient(ellipse, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
+                    pointerEvents: "none",
+                    zIndex: 0,
+                }} />
+
                 {/* Header */}
-                <div style={{ textAlign: "center", marginBottom: "56px" }}>
-                    <Badge variant="accent" style={{ 
-                        fontSize: "11px", 
-                        letterSpacing: "1px",
-                        textTransform: "uppercase",
-                        padding: "6px 12px"
+                <div style={{ 
+                    textAlign: "center", 
+                    marginBottom: "64px",
+                    position: "relative",
+                    zIndex: 1,
+                }}>
+                    <div style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px 16px",
+                        background: "rgba(50, 215, 75, 0.08)",
+                        border: "1px solid rgba(50, 215, 75, 0.15)",
+                        borderRadius: "100px",
+                        marginBottom: "28px",
                     }}>
-                        Verification Intelligence
-                    </Badge>
+                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)" }} />
+                        <span style={{ fontSize: "12px", color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                            Verification Intelligence
+                        </span>
+                    </div>
                     <h1 style={{
-                        fontSize: "52px",
+                        fontSize: "clamp(36px, 6vw, 56px)",
                         fontWeight: 700,
-                        marginTop: "20px",
-                        marginBottom: "20px",
-                        background: "linear-gradient(135deg, var(--text) 0%, var(--text-secondary) 100%)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.1,
+                        marginTop: "0",
+                        marginBottom: "24px",
                     }}>
-                        Treaty Verification Advisor
+                        Treaty Verification<br />
+                        <span style={{ color: "var(--accent)" }}>Advisor</span>
                     </h1>
                     <p style={{
-                        fontSize: "18px",
+                        fontSize: "17px",
                         color: "var(--text-secondary)",
                         maxWidth: "680px",
                         margin: "0 auto",
-                        lineHeight: 1.8,
+                        lineHeight: 1.7,
                         fontWeight: 400,
                     }}>
                         Analyze treaty documents to identify verification requirements, assess compliance mechanisms, 
@@ -597,25 +627,31 @@ ${html}
                 </div>
 
                 {/* Upload Section */}
-                <BentoCard hoverable={false} style={{ marginBottom: "32px" }}>
-                    <div style={{ marginBottom: "20px" }}>
-                        <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "6px" }}>
+                <BentoCard hoverable={false} style={{ 
+                    marginBottom: "32px",
+                    position: "relative",
+                    zIndex: 1,
+                    background: "rgba(255, 255, 255, 0.02)",
+                    border: "1px solid var(--border)",
+                }}>
+                    <div style={{ marginBottom: "24px" }}>
+                        <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px" }}>
                             Document Upload
                         </h3>
-                        <p style={{ fontSize: "13px", color: "var(--text-tertiary)", lineHeight: 1.5 }}>
+                        <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
                             Upload treaty, policy, or regulatory documents for verification requirement analysis
                         </p>
                     </div>
 
                     <div style={{
                         border: file ? "2px solid var(--accent)" : "2px dashed var(--border)",
-                        borderRadius: "12px",
-                        padding: "48px 40px",
+                        borderRadius: "16px",
+                        padding: "52px 40px",
                         textAlign: "center",
-                        marginBottom: "20px",
+                        marginBottom: "24px",
                         background: file 
-                            ? "linear-gradient(135deg, rgba(50, 215, 75, 0.08) 0%, rgba(50, 215, 75, 0.02) 100%)" 
-                            : "transparent",
+                            ? "linear-gradient(135deg, rgba(50, 215, 75, 0.1) 0%, rgba(50, 215, 75, 0.03) 100%)" 
+                            : "rgba(255, 255, 255, 0.01)",
                         transition: "all 0.3s ease",
                         position: "relative",
                         overflow: "hidden",
@@ -714,35 +750,35 @@ ${html}
 
                     {result && (
                         <div style={{
-                            marginTop: "20px",
-                            padding: "14px 20px",
+                            marginTop: "24px",
+                            padding: "18px 20px",
                             background: "rgba(50, 215, 75, 0.1)",
-                            border: "1px solid rgba(50, 215, 75, 0.25)",
-                            borderRadius: "10px",
+                            border: "1px solid rgba(50, 215, 75, 0.3)",
+                            borderRadius: "12px",
                             display: "flex",
                             alignItems: "center",
-                            gap: "12px",
+                            gap: "14px",
                         }}>
                             <div style={{
-                                width: "24px",
-                                height: "24px",
-                                borderRadius: "6px",
+                                width: "28px",
+                                height: "28px",
+                                borderRadius: "8px",
                                 background: "var(--accent)",
                                 color: "var(--bg)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontSize: "14px",
+                                fontSize: "16px",
                                 fontWeight: 700,
                                 flexShrink: 0,
                             }}>
                                 ✓
                             </div>
                             <div>
-                                <div style={{ fontWeight: 600, color: "var(--accent)", fontSize: "14px" }}>
+                                <div style={{ fontWeight: 600, color: "var(--accent)", fontSize: "15px", marginBottom: "4px" }}>
                                     Analysis Completed
                                 </div>
-                                <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                                <div style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
                                     Verification requirements and mechanism recommendations are ready
                                 </div>
                             </div>
@@ -751,35 +787,35 @@ ${html}
 
                     {error && (
                         <div style={{
-                            marginTop: "20px",
-                            padding: "16px 20px",
+                            marginTop: "24px",
+                            padding: "18px 20px",
                             background: "rgba(255, 69, 58, 0.08)",
-                            border: "1px solid rgba(255, 69, 58, 0.2)",
-                            borderRadius: "10px",
+                            border: "1px solid rgba(255, 69, 58, 0.25)",
+                            borderRadius: "12px",
                             color: "var(--red)",
                             fontSize: "14px",
                             display: "flex",
                             alignItems: "flex-start",
-                            gap: "12px",
+                            gap: "14px",
                         }}>
                             <div style={{
-                                width: "20px",
-                                height: "20px",
-                                borderRadius: "4px",
+                                width: "24px",
+                                height: "24px",
+                                borderRadius: "8px",
                                 background: "rgba(255, 69, 58, 0.15)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 flexShrink: 0,
                                 marginTop: "1px",
-                                fontSize: "12px",
-                                fontWeight: 600,
+                                fontSize: "14px",
+                                fontWeight: 700,
                             }}>
                                 !
                             </div>
                             <div>
-                                <div style={{ fontWeight: 600, marginBottom: "4px" }}>Analysis Error</div>
-                                <div style={{ opacity: 0.9 }}>{error}</div>
+                                <div style={{ fontWeight: 600, marginBottom: "6px", fontSize: "15px" }}>Analysis Error</div>
+                                <div style={{ opacity: 0.9, lineHeight: 1.6 }}>{error}</div>
                             </div>
                         </div>
                     )}
@@ -791,8 +827,10 @@ ${html}
                         {/* One-Pager Generation */}
                         <BentoCard hoverable={false} style={{ 
                             marginBottom: "32px", 
-                            background: "linear-gradient(135deg, rgba(50, 215, 75, 0.08) 0%, rgba(50, 215, 75, 0.02) 100%)",
-                            border: "1px solid rgba(50, 215, 75, 0.15)"
+                            background: "linear-gradient(135deg, rgba(50, 215, 75, 0.1) 0%, rgba(50, 215, 75, 0.03) 100%)",
+                            border: "1px solid rgba(50, 215, 75, 0.2)",
+                            position: "relative",
+                            zIndex: 1,
                         }}>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "20px" }}>
                                 <div style={{ flex: 1, minWidth: "280px" }}>
@@ -880,63 +918,79 @@ ${html}
                         </BentoCard>
 
                         {/* Requirements */}
-                        <BentoCard hoverable={false} style={{ marginBottom: "32px" }}>
-                            <div style={{ marginBottom: "20px" }}>
-                                <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "6px" }}>
+                        <BentoCard hoverable={false} style={{ 
+                            marginBottom: "32px",
+                            position: "relative",
+                            zIndex: 1,
+                            background: "rgba(255, 255, 255, 0.02)",
+                            border: "1px solid var(--border)",
+                        }}>
+                            <div style={{ marginBottom: "24px" }}>
+                                <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px" }}>
                                     Verification Requirements Identified
                                 </h3>
-                                <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
+                                <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
                                     Core compliance obligations extracted from the document
                                 </p>
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                                 {result.analysis.requirements.slice(0, 5).map((req, i) => (
                                     <div key={i} style={{
-                                        padding: "14px 16px",
-                                        background: "var(--bg-card)",
-                                        borderRadius: "10px",
+                                        padding: "16px 18px",
+                                        background: "rgba(255, 255, 255, 0.03)",
+                                        borderRadius: "12px",
                                         fontSize: "14px",
                                         color: "var(--text)",
                                         border: "1px solid var(--border)",
                                         display: "flex",
                                         alignItems: "flex-start",
-                                        gap: "12px",
+                                        gap: "14px",
                                         transition: "all 0.2s ease",
                                     }}>
                                         <div style={{
-                                            width: "20px",
-                                            height: "20px",
-                                            borderRadius: "6px",
+                                            width: "24px",
+                                            height: "24px",
+                                            borderRadius: "8px",
                                             background: "var(--accent)",
                                             color: "var(--bg)",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            fontSize: "11px",
+                                            fontSize: "12px",
                                             fontWeight: 700,
                                             flexShrink: 0,
                                             marginTop: "1px",
                                         }}>
                                             {i + 1}
                                         </div>
-                                        <div style={{ flex: 1, lineHeight: 1.6 }}>{req}</div>
+                                        <div style={{ flex: 1, lineHeight: 1.7, color: "var(--text-secondary)" }}>{req}</div>
                                     </div>
                                 ))}
                             </div>
                         </BentoCard>
 
                         {/* Recommendations */}
-                        <div style={{ marginBottom: "24px" }}>
-                            <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "6px" }}>
+                        <div style={{ 
+                            marginBottom: "28px",
+                            position: "relative",
+                            zIndex: 1,
+                        }}>
+                            <h3 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "8px" }}>
                                 Recommended Verification Mechanisms
                             </h3>
-                            <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
+                            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
                                 Mechanisms ranked by alignment with identified verification requirements
                             </p>
                         </div>
 
                         {result.recommendations.map((rec, i) => (
-                            <BentoCard key={i} hoverable={false} style={{ marginBottom: "20px" }}>
+                            <BentoCard key={i} hoverable={false} style={{ 
+                                marginBottom: "24px",
+                                position: "relative",
+                                zIndex: 1,
+                                background: "rgba(255, 255, 255, 0.02)",
+                                border: "1px solid var(--border)",
+                            }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "24px" }}>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "12px" }}>
@@ -981,23 +1035,23 @@ ${html}
                                         </p>
 
                                         <div style={{
-                                            padding: "14px 16px",
-                                            background: "rgba(50, 215, 75, 0.06)",
-                                            borderRadius: "10px",
-                                            border: "1px solid rgba(50, 215, 75, 0.15)",
-                                            marginTop: "12px",
+                                            padding: "16px 18px",
+                                            background: "rgba(50, 215, 75, 0.08)",
+                                            borderRadius: "12px",
+                                            border: "1px solid rgba(50, 215, 75, 0.2)",
+                                            marginTop: "14px",
                                         }}>
                                             <div style={{
                                                 fontSize: "10px",
                                                 color: "var(--accent)",
                                                 textTransform: "uppercase",
-                                                marginBottom: "8px",
+                                                marginBottom: "10px",
                                                 fontWeight: 700,
                                                 letterSpacing: "0.5px",
                                             }}>
                                                 Recommendation Rationale
                                             </div>
-                                            <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                                            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7 }}>
                                                 {rec.rationale}
                                             </p>
                                         </div>
@@ -1024,12 +1078,18 @@ ${html}
 
                 {/* Example Documents */}
                 {!result && !analyzing && (
-                    <BentoCard hoverable={false} style={{ marginTop: "32px" }}>
-                        <div style={{ marginBottom: "16px" }}>
-                            <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "6px", color: "var(--text)" }}>
+                    <BentoCard hoverable={false} style={{ 
+                        marginTop: "48px",
+                        position: "relative",
+                        zIndex: 1,
+                        background: "rgba(255, 255, 255, 0.02)",
+                        border: "1px solid var(--border)",
+                    }}>
+                        <div style={{ marginBottom: "20px" }}>
+                            <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px", color: "var(--text)" }}>
                                 Document Types Supported
                             </h3>
-                            <p style={{ fontSize: "12px", color: "var(--text-tertiary)", lineHeight: 1.5 }}>
+                            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
                                 The verification advisor can analyze various types of governance documents
                             </p>
                         </div>
@@ -1040,16 +1100,16 @@ ${html}
                                 { title: "Compliance Standards", desc: "Technical specifications for verification mechanisms" },
                             ].map((ex, i) => (
                                 <div key={i} style={{
-                                    padding: "14px 16px",
-                                    background: "var(--bg-card)",
-                                    borderRadius: "10px",
+                                    padding: "18px 20px",
+                                    background: "rgba(255, 255, 255, 0.03)",
+                                    borderRadius: "12px",
                                     border: "1px solid var(--border)",
-                                    fontSize: "13px",
+                                    transition: "all 0.2s ease",
                                 }}>
-                                    <div style={{ fontWeight: 600, color: "var(--text)", marginBottom: "4px" }}>
+                                    <div style={{ fontWeight: 600, color: "var(--text)", marginBottom: "6px", fontSize: "15px" }}>
                                         {ex.title}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+                                    <div style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
                                         {ex.desc}
                                     </div>
                                 </div>
