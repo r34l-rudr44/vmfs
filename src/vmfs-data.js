@@ -839,7 +839,8 @@ export const SUBVERSION_VECTORS = [
     mitigation: "Lower thresholds, gradient requirements",
     applicableMechanisms: ["m1_compute_monitoring", "m8_declarations"]
   }
-  if (typeof window !== 'undefined') {
-      window.COVERAGE_MATRIX = COVERAGE_MATRIX;
-  }
 ];
+
+if (typeof window !== 'undefined') {
+    window.COVERAGE_MATRIX = COVERAGE_MATRIX;
+}
