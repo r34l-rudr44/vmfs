@@ -1,7 +1,35 @@
 // Home Page - Landing/Hero with New Framework Messaging
 import { Link } from "react-router-dom";
 import { Layout, BentoCard, Button } from "../components/shared";
-import { MECHANISMS, OOVS, KEY_FINDINGS, SCORE_DIMENSIONS, EVIDENCE_LOCATIONS } from "../vmfs-data";
+import { MECHANISMS, OOVS, KEY_FINDINGS, SCORE_DIMENSIONS } from "../vmfs-data";
+
+// SVG Icons for dimensions
+const DimensionIcons = {
+    hardness: (color) => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+        </svg>
+    ),
+    burden: (color) => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+        </svg>
+    ),
+    intrusion: (color) => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    ),
+    robustness: (color) => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+    ),
+};
 
 export default function HomePage({ theme, toggleTheme }) {
     // Calculate stats using new scoring
@@ -18,7 +46,6 @@ export default function HomePage({ theme, toggleTheme }) {
             : 3;
     }));
 
-    const dimensionLabels = ["TR", "CO", "FR", "CH"];
 
     return (
         <Layout theme={theme} toggleTheme={toggleTheme}>
@@ -123,7 +150,6 @@ export default function HomePage({ theme, toggleTheme }) {
                 }}>
                     {[
                         { value: MECHANISMS.length, label: "Mechanisms" },
-                        { value: Object.keys(EVIDENCE_LOCATIONS).length, label: "Evidence Locations" },
                         { value: avgScore.toFixed(1), label: "Avg. Score" },
                         { value: "4", label: "Dimensions" },
                     ].map((stat, i) => (
@@ -171,12 +197,8 @@ export default function HomePage({ theme, toggleTheme }) {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 marginBottom: "14px",
-                                fontSize: "14px",
-                                fontWeight: 700,
-                                fontFamily: "var(--mono)",
-                                color: dim.color,
                             }}>
-                                {dimensionLabels[i]}
+                                {DimensionIcons[key](dim.color)}
                             </div>
                             <h3 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "4px" }}>{dim.shortName}</h3>
                             <div style={{ fontSize: "11px", color: dim.color, marginBottom: "8px" }}>{dim.name}</div>
@@ -258,14 +280,14 @@ export default function HomePage({ theme, toggleTheme }) {
                                 "I want to verify compute usage"
                             </div>
                         </div>
-                        <div style={{ fontSize: "24px", color: "var(--text-tertiary)" }}>{"->"}</div>
+                        <div style={{ fontSize: "24px", color: "var(--text-tertiary)" }}>&rarr;</div>
                         <div style={{ flex: 1, textAlign: "center" }}>
                             <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>Evidence Location</div>
                             <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
                                 Chip / Hardware Level
                             </div>
                         </div>
-                        <div style={{ fontSize: "24px", color: "var(--text-tertiary)" }}>{"->"}</div>
+                        <div style={{ fontSize: "24px", color: "var(--text-tertiary)" }}>&rarr;</div>
                         <div style={{ flex: 1, textAlign: "center" }}>
                             <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>Mechanisms</div>
                             <div style={{ fontSize: "12px", color: "var(--accent)" }}>

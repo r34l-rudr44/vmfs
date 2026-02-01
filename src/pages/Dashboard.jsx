@@ -1,6 +1,7 @@
 // Dashboard Page - Interactive Visualizations with Goal-Based Filter
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { Layout, BentoCard } from "../components/shared";
+import { useNavigate } from "react-router-dom";
+import { Layout, BentoCard, Button } from "../components/shared";
 import { 
     MECHANISMS, 
     OOVS, 
@@ -144,7 +145,7 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
 // ============================================================================
 // GOAL-BASED FILTER - Entry Point
 // ============================================================================
-function GoalBasedFilter({ onSelectMechanism }) {
+function GoalBasedFilter({ onSelectMechanism, onCompare }) {
     const [selectedGoal, setSelectedGoal] = useState(null);
     const [matchingMechanisms, setMatchingMechanisms] = useState([]);
 
@@ -194,9 +195,9 @@ function GoalBasedFilter({ onSelectMechanism }) {
             {selectedGoal && matchingMechanisms.length > 0 && (
                 <div>
                     <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                        Recommended Tools ({matchingMechanisms.length})
+                        Recommended Mechanisms ({matchingMechanisms.length})
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "16px" }}>
                         {matchingMechanisms.map((m) => {
                             const avgScore = m.newScores 
                                 ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4 
@@ -227,6 +228,13 @@ function GoalBasedFilter({ onSelectMechanism }) {
                             );
                         })}
                     </div>
+                    <Button 
+                        variant="primary" 
+                        onClick={() => onCompare(matchingMechanisms)}
+                        style={{ width: "100%", padding: "10px 16px", fontSize: "12px" }}
+                    >
+                        Compare Mechanisms
+                    </Button>
                 </div>
             )}
         </div>
@@ -417,6 +425,7 @@ function DetailPanel({ mechanism }) {
 // MAIN DASHBOARD
 // ============================================================================
 export default function DashboardPage({ theme, toggleTheme }) {
+    const navigate = useNavigate();
     const [selected, setSelected] = useState(null);
     const [customScores, setCustomScores] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -447,6 +456,12 @@ export default function DashboardPage({ theme, toggleTheme }) {
     const handleSelect = (m) => {
         setSelected(m);
         setCustomScores(null);
+    };
+
+    const handleCompare = (mechanisms) => {
+        // Navigate to compare mechanisms page with recommended mechanisms
+        const mechanismIds = mechanisms.map(m => m.id).join(',');
+        navigate(`/portfolio?recommended=${mechanismIds}`);
     };
 
     return (
@@ -496,7 +511,7 @@ export default function DashboardPage({ theme, toggleTheme }) {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                             <h3 style={{ fontSize: "12px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Goal-Based Filter</h3>
                         </div>
-                        <GoalBasedFilter onSelectMechanism={handleSelect} />
+                        <GoalBasedFilter onSelectMechanism={handleSelect} onCompare={handleCompare} />
                     </BentoCard>
                 </div>
 

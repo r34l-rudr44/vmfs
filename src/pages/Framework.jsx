@@ -102,7 +102,7 @@ export default function FrameworkPage({ theme, toggleTheme }) {
                                 access that location.
                             </p>
                             <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                                {"Goal -> Evidence Location -> Mechanism"}
+                                Goal &rarr; Evidence Location &rarr; Mechanism
                             </div>
                         </BentoCard>
 

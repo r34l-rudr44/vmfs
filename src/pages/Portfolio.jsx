@@ -1,5 +1,6 @@
 // Portfolio Builder - Select mechanisms to build verification strategy
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Layout, BentoCard, SectionHeader, Badge, Button } from "../components/shared";
 import { 
     MECHANISMS, 
@@ -568,7 +569,7 @@ function CoverageMatrix({ portfolio }) {
                                             {m.coverage === "primary" ? "Y" : "-"} {m.mechanism.shortName}
                                         </>
                                     )}
-                                </span>
+                                    </span>
                             ))}
                         </div>
                     </div>
@@ -582,8 +583,23 @@ function CoverageMatrix({ portfolio }) {
 // MAIN PAGE
 // ============================================================================
 export default function PortfolioPage({ theme, toggleTheme }) {
+    const [searchParams] = useSearchParams();
     const [portfolio, setPortfolio] = useState([]);
+    const [initialized, setInitialized] = useState(false);
     const MAX_SELECTION = 3;
+
+    // Handle recommended mechanisms from URL
+    useEffect(() => {
+        if (!initialized) {
+            const recommended = searchParams.get('recommended');
+            if (recommended) {
+                const mechanismIds = recommended.split(',');
+                const recommendedMechanisms = MECHANISMS.filter(m => mechanismIds.includes(m.id));
+                setPortfolio(recommendedMechanisms.slice(0, MAX_SELECTION));
+            }
+            setInitialized(true);
+        }
+    }, [searchParams, initialized]);
 
     const sorted = useMemo(
         () => [...MECHANISMS].sort((a, b) => {
@@ -676,16 +692,16 @@ export default function PortfolioPage({ theme, toggleTheme }) {
                                                 ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4 
                                                 : 3.0;
                                             return (
-                                                <div key={m.id} style={{
-                                                    flex: 1,
-                                                    padding: "16px",
-                                                    background: "rgba(50, 215, 75, 0.06)",
-                                                    border: "1px solid rgba(50, 215, 75, 0.15)",
-                                                    borderRadius: "12px",
-                                                    textAlign: "center",
-                                                }}>
-                                                    <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>{m.shortName}</div>
-                                                    <div style={{ fontSize: "20px", fontWeight: 700, fontFamily: "var(--mono)", color: "var(--accent)" }}>
+                                            <div key={m.id} style={{
+                                                flex: 1,
+                                                padding: "16px",
+                                                background: "rgba(50, 215, 75, 0.06)",
+                                                border: "1px solid rgba(50, 215, 75, 0.15)",
+                                                borderRadius: "12px",
+                                                textAlign: "center",
+                                            }}>
+                                                <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>{m.shortName}</div>
+                                                <div style={{ fontSize: "20px", fontWeight: 700, fontFamily: "var(--mono)", color: "var(--accent)" }}>
                                                         {avgScore.toFixed(1)}
                                                     </div>
                                                 </div>
