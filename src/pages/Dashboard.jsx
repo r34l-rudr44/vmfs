@@ -1,10 +1,18 @@
-// Dashboard Page - Interactive Visualizations
+// Dashboard Page - Interactive Visualizations with Goal-Based Filter
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Layout, BentoCard } from "../components/shared";
-import { MECHANISMS, OOVS, COVERAGE_MATRIX } from "../vmfs-data";
+import { 
+    MECHANISMS, 
+    OOVS, 
+    COVERAGE_MATRIX, 
+    VERIFICATION_GOALS,
+    EVIDENCE_LOCATIONS,
+    SCORE_DIMENSIONS,
+    getMechanismsByLocation 
+} from "../vmfs-data";
 
 // ============================================================================
-// RADAR CHART
+// NEW RADAR CHART - 4 DIMENSIONS
 // ============================================================================
 function RadarChart({ mechanism, customScores, onScoreChange }) {
     const svgRef = useRef(null);
@@ -16,13 +24,13 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
     const radius = 110;
 
     const dimensions = [
-        { key: "technicalFeasibility", label: "Technical", color: "#0a84ff" },
-        { key: "politicalTractability", label: "Political", color: "#bf5af2" },
-        { key: "sovereigntyImpact", label: "Sovereignty", color: "#ff9f0a" },
-        { key: "globalSouthAdoptability", label: "Global South", color: "#32d74b" },
+        { key: "hardness", label: "Hardness", sublabel: "Trust", color: "#0a84ff" },
+        { key: "robustness", label: "Robustness", sublabel: "Cheating", color: "#bf5af2" },
+        { key: "burden", label: "Burden", sublabel: "Cost", color: "#32d74b" },
+        { key: "intrusion", label: "Intrusion", sublabel: "Friction", color: "#ff9f0a" },
     ];
 
-    const scores = customScores || mechanism?.vmfsScores || {};
+    const scores = customScores || mechanism?.newScores || { hardness: 3, burden: 3, intrusion: 3, robustness: 3 };
     const hasCustom = customScores !== null;
 
     const getPoint = useCallback((value, index, r = radius) => {
@@ -56,10 +64,10 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
     }, [dragging, handleDrag]);
 
     const labelPos = [
-        { x: center, y: 40, anchor: "middle" },
-        { x: size - 25, y: center, anchor: "start" },
-        { x: center, y: size - 35, anchor: "middle" },
-        { x: 25, y: center, anchor: "end" },
+        { x: center, y: 30, anchor: "middle" },
+        { x: size - 20, y: center, anchor: "start" },
+        { x: center, y: size - 25, anchor: "middle" },
+        { x: 20, y: center, anchor: "end" },
     ];
 
     if (!mechanism) return (
@@ -67,6 +75,8 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
             Select a mechanism to view
         </div>
     );
+
+    const avgScore = (scores.hardness + scores.burden + scores.intrusion + scores.robustness) / 4;
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -98,7 +108,7 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
                     );
                 })}
 
-                {hasCustom && <polygon points={getPolygon(mechanism.vmfsScores)} fill="none" stroke="var(--border)" strokeWidth="1" strokeDasharray="4" />}
+                {hasCustom && mechanism?.newScores && <polygon points={getPolygon(mechanism.newScores)} fill="none" stroke="var(--border)" strokeWidth="1" strokeDasharray="4" />}
                 <polygon points={getPolygon(scores)} fill="var(--accent-glow)" stroke="var(--accent)" strokeWidth="2" style={{ transition: dragging === null ? "all 0.2s" : "none" }} />
 
                 {dimensions.map((d, i) => {
@@ -116,10 +126,10 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
 
             <div style={{ marginTop: "12px", textAlign: "center" }}>
                 <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                    {hasCustom ? "Adjusted Score" : "Feasibility Score"}
+                    {hasCustom ? "Adjusted Score" : "Composite Score"}
                 </div>
                 <div style={{ fontSize: "36px", fontWeight: 700, fontFamily: "var(--mono)", color: hasCustom ? "var(--accent)" : "var(--text)", marginTop: "4px" }}>
-                    {((scores.technicalFeasibility + scores.politicalTractability + scores.sovereigntyImpact + scores.globalSouthAdoptability) / 4).toFixed(2)}
+                    {avgScore.toFixed(2)}
                 </div>
                 {hasCustom && (
                     <button onClick={() => onScoreChange?.("reset", null)} style={{ marginTop: "8px", padding: "6px 16px", background: "transparent", border: "1px solid var(--border)", borderRadius: "20px", color: "var(--text-secondary)", fontSize: "11px", cursor: "pointer" }}>
@@ -132,6 +142,98 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
 }
 
 // ============================================================================
+// GOAL-BASED FILTER - Entry Point
+// ============================================================================
+function GoalBasedFilter({ onSelectMechanism }) {
+    const [selectedGoal, setSelectedGoal] = useState(null);
+    const [matchingMechanisms, setMatchingMechanisms] = useState([]);
+
+    useEffect(() => {
+        if (selectedGoal) {
+            const mechanisms = getMechanismsByLocation(selectedGoal.evidenceLocation);
+            setMatchingMechanisms(mechanisms);
+        } else {
+            setMatchingMechanisms([]);
+        }
+    }, [selectedGoal]);
+
+    return (
+        <div>
+            <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }}>
+                I want to verify...
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "200px", overflowY: "auto", marginBottom: "16px" }}>
+                {VERIFICATION_GOALS.map((goal) => {
+                    const isSelected = selectedGoal?.id === goal.id;
+                    const location = Object.values(EVIDENCE_LOCATIONS).find(l => l.id === goal.evidenceLocation);
+                    return (
+                        <div
+                            key={goal.id}
+                            onClick={() => setSelectedGoal(isSelected ? null : goal)}
+                            style={{
+                                padding: "12px",
+                                background: isSelected ? "rgba(50, 215, 75, 0.1)" : "rgba(255,255,255,0.02)",
+                                border: `1px solid ${isSelected ? "rgba(50, 215, 75, 0.3)" : "rgba(255,255,255,0.06)"}`,
+                                borderRadius: "10px",
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                            }}
+                        >
+                            <div style={{ fontSize: "13px", fontWeight: 500, marginBottom: "4px", color: isSelected ? "var(--accent)" : "var(--text)" }}>
+                                {goal.goal}
+                            </div>
+                            <div style={{ fontSize: "10px", color: "var(--text-tertiary)" }}>
+                                Location: {location?.name?.split('/')[0]?.trim() || goal.evidenceLocation}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {selectedGoal && matchingMechanisms.length > 0 && (
+                <div>
+                    <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                        Recommended Tools ({matchingMechanisms.length})
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {matchingMechanisms.map((m) => {
+                            const avgScore = m.newScores 
+                                ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4 
+                                : 3.0;
+                            return (
+                                <div
+                                    key={m.id}
+                                    onClick={() => onSelectMechanism(m)}
+                                    style={{
+                                        padding: "10px 12px",
+                                        background: "rgba(50, 215, 75, 0.06)",
+                                        border: "1px solid rgba(50, 215, 75, 0.15)",
+                                        borderRadius: "8px",
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <div>
+                                        <div style={{ fontSize: "13px", fontWeight: 600 }}>{m.shortName}</div>
+                                        <div style={{ fontSize: "10px", color: "var(--text-tertiary)" }}>{m.evidenceProduced}</div>
+                                    </div>
+                                    <div style={{ fontSize: "16px", fontWeight: 700, fontFamily: "var(--mono)", color: "var(--accent)" }}>
+                                        {avgScore.toFixed(1)}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ============================================================================
 // SCATTER MATRIX
 // ============================================================================
 function ScatterMatrix({ mechanisms, selected, onSelect }) {
@@ -139,6 +241,7 @@ function ScatterMatrix({ mechanisms, selected, onSelect }) {
     const height = 280;
     const pad = 50;
 
+    // Use new dimensions: Hardness vs Burden
     const xScale = (v) => pad + ((v - 1) / 4) * (width - pad * 2);
     const yScale = (v) => height - pad - ((v - 1) / 4) * (height - pad * 2);
 
@@ -162,14 +265,17 @@ function ScatterMatrix({ mechanisms, selected, onSelect }) {
                 </g>
             ))}
 
-            <text x={width / 2} y={height - 8} fill="var(--text-secondary)" fontSize="10" textAnchor="middle">Technical →</text>
-            <text x={12} y={height / 2} fill="var(--text-secondary)" fontSize="10" textAnchor="middle" transform={`rotate(-90, 12, ${height / 2})`}>Political →</text>
+            <text x={width / 2} y={height - 8} fill="var(--text-secondary)" fontSize="10" textAnchor="middle">Hardness (Trust)</text>
+            <text x={12} y={height / 2} fill="var(--text-secondary)" fontSize="10" textAnchor="middle" transform={`rotate(-90, 12, ${height / 2})`}>Burden (Cost)</text>
 
             {mechanisms.map((m) => {
-                const x = xScale(m.vmfsScores.technicalFeasibility);
-                const y = yScale(m.vmfsScores.politicalTractability);
+                const x = xScale(m.newScores?.hardness || 3);
+                const y = yScale(m.newScores?.burden || 3);
                 const isSelected = selected?.id === m.id;
-                const size = 4 + m.vmfsScores.weightedAvg * 1.2;
+                const avgScore = m.newScores 
+                    ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4 
+                    : 3;
+                const size = 4 + avgScore * 1.2;
 
                 return (
                     <g key={m.id} style={{ cursor: "pointer" }} onClick={() => onSelect(m)}>
@@ -197,6 +303,10 @@ function MechanismCard({ m, isSelected, onClick, rank }) {
     const cov = COVERAGE_MATRIX.find(c => c.mechanismId === m.id);
     const oovKeys = ["oov1_compute", "oov2_lineage", "oov3_deployment", "oov4_post_training"];
     const primaryCount = oovKeys.filter(k => cov?.[k]?.coverage === "primary").length;
+
+    const avgScore = m.newScores 
+        ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4 
+        : m.vmfsScores?.weightedAvg || 3.0;
 
     return (
         <div
@@ -226,8 +336,8 @@ function MechanismCard({ m, isSelected, onClick, rank }) {
             </div>
             <div style={{
                 fontSize: "18px", fontWeight: 700, fontFamily: "var(--mono)",
-                color: m.vmfsScores.weightedAvg >= 3.5 ? "var(--accent)" : m.vmfsScores.weightedAvg >= 2.5 ? "var(--orange)" : "var(--red)",
-            }}>{m.vmfsScores.weightedAvg.toFixed(1)}</div>
+                color: avgScore >= 3.5 ? "var(--accent)" : avgScore >= 2.5 ? "var(--orange)" : "var(--red)",
+            }}>{avgScore.toFixed(1)}</div>
         </div>
     );
 }
@@ -240,12 +350,39 @@ function DetailPanel({ mechanism }) {
 
     const cov = COVERAGE_MATRIX.find(c => c.mechanismId === mechanism.id);
     const oovKeys = ["oov1_compute", "oov2_lineage", "oov3_deployment", "oov4_post_training"];
+    const dimensions = Object.entries(SCORE_DIMENSIONS);
 
     return (
         <div style={{ padding: "20px", borderTop: "1px solid var(--border)", marginTop: "16px" }}>
             <h4 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "8px" }}>{mechanism.shortName}</h4>
             <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "16px" }}>{mechanism.definition}</p>
 
+            {/* New 4-Dimension Scores */}
+            <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", marginBottom: "8px" }}>
+                    Dimension Scores
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+                    {dimensions.map(([key, dim]) => {
+                        const score = mechanism.newScores?.[key] || 3;
+                        return (
+                            <div key={key} style={{
+                                padding: "10px",
+                                background: `${dim.color}10`,
+                                borderRadius: "8px",
+                                textAlign: "center",
+                            }}>
+                                <div style={{ fontSize: "18px", fontWeight: 700, fontFamily: "var(--mono)", color: dim.color }}>
+                                    {score.toFixed(1)}
+                                </div>
+                                <div style={{ fontSize: "10px", color: "var(--text-tertiary)", marginTop: "2px" }}>{dim.shortName}</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* OoV Coverage */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", marginBottom: "16px" }}>
                 {OOVS.map((oov, i) => {
                     const cell = cov?.[oovKeys[i]];
@@ -259,7 +396,7 @@ function DetailPanel({ mechanism }) {
                             textAlign: "center",
                         }}>
                             <span style={{ color: isPrimary ? "var(--accent)" : isPartial ? "var(--blue)" : "var(--text-tertiary)", fontSize: "14px" }}>
-                                {isPrimary ? "●" : isPartial ? "◐" : "○"}
+                                {isPrimary ? "Y" : isPartial ? "-" : "X"}
                             </span>
                             <div style={{ fontSize: "10px", color: "var(--text-tertiary)", marginTop: "2px" }}>{oov.shortName}</div>
                         </div>
@@ -267,9 +404,10 @@ function DetailPanel({ mechanism }) {
                 })}
             </div>
 
+            {/* Limitation */}
             <div style={{ padding: "12px", background: "rgba(255, 69, 58, 0.05)", borderRadius: "8px" }}>
                 <div style={{ fontSize: "10px", color: "var(--red)", textTransform: "uppercase", marginBottom: "4px" }}>Key Limitation</div>
-                <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>{mechanism.limitations.primary}</p>
+                <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.5 }}>{mechanism.limitations?.primary || mechanism.biggestLimitation}</p>
             </div>
         </div>
     );
@@ -282,9 +420,18 @@ export default function DashboardPage({ theme, toggleTheme }) {
     const [selected, setSelected] = useState(null);
     const [customScores, setCustomScores] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
+    const [activeTab, setActiveTab] = useState("mechanisms"); // "mechanisms" or "goals"
 
-    const sorted = useMemo(() => [...MECHANISMS].sort((a, b) => b.vmfsScores.weightedAvg - a.vmfsScores.weightedAvg), []);
-    const avgScore = MECHANISMS.reduce((a, m) => a + m.vmfsScores.weightedAvg, 0) / MECHANISMS.length;
+    const sorted = useMemo(() => [...MECHANISMS].sort((a, b) => {
+        const aScore = a.newScores ? (a.newScores.hardness + a.newScores.burden + a.newScores.intrusion + a.newScores.robustness) / 4 : 0;
+        const bScore = b.newScores ? (b.newScores.hardness + b.newScores.burden + b.newScores.intrusion + b.newScores.robustness) / 4 : 0;
+        return bScore - aScore;
+    }), []);
+
+    const avgScore = MECHANISMS.reduce((a, m) => {
+        const score = m.newScores ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4 : 3;
+        return a + score;
+    }, 0) / MECHANISMS.length;
 
     useEffect(() => {
         if (!selected && sorted.length) setSelected(sorted[0]);
@@ -293,7 +440,7 @@ export default function DashboardPage({ theme, toggleTheme }) {
     const handleScoreChange = (key, value) => {
         if (key === "reset") { setCustomScores(null); return; }
         if (!selected) return;
-        const base = customScores || { ...selected.vmfsScores };
+        const base = customScores || { ...selected.newScores };
         setCustomScores({ ...base, [key]: value });
     };
 
@@ -309,12 +456,12 @@ export default function DashboardPage({ theme, toggleTheme }) {
                 <div style={{ marginBottom: "32px" }}>
                     <h1 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "8px" }}>Interactive Dashboard</h1>
                     <p style={{ fontSize: "15px", color: "var(--text-secondary)" }}>
-                        Explore verification mechanisms with interactive visualizations. Drag radar points to simulate what-if scenarios.
+                        Explore verification mechanisms across four dimensions: Evidence Hardness, Infrastructure Burden, Intrusion Level, and Evasion Robustness.
                     </p>
                 </div>
 
                 {/* Bento Grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "20px", marginBottom: "20px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "20px" }}>
                     {/* Radar */}
                     <BentoCard hoverable={false}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
@@ -328,7 +475,7 @@ export default function DashboardPage({ theme, toggleTheme }) {
                     {/* Matrix */}
                     <BentoCard hoverable={false}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                            <h3 style={{ fontSize: "12px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Feasibility Matrix</h3>
+                            <h3 style={{ fontSize: "12px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Hardness vs Burden</h3>
                             <div style={{ display: "flex", gap: "20px" }}>
                                 {[
                                     { label: "Mechanisms", value: MECHANISMS.length },
@@ -342,6 +489,14 @@ export default function DashboardPage({ theme, toggleTheme }) {
                             </div>
                         </div>
                         <ScatterMatrix mechanisms={sorted} selected={selected} onSelect={handleSelect} />
+                    </BentoCard>
+
+                    {/* Goal-Based Filter */}
+                    <BentoCard hoverable={false}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                            <h3 style={{ fontSize: "12px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Goal-Based Filter</h3>
+                        </div>
+                        <GoalBasedFilter onSelectMechanism={handleSelect} />
                     </BentoCard>
                 </div>
 

@@ -1,7 +1,7 @@
-// Mechanisms Page - Detailed List of All Mechanisms
+// Mechanisms Page - Detailed List of All Mechanisms with New Scoring
 import { useState, useMemo } from "react";
-import { Layout, BentoCard, SectionHeader, ScoreBar, Badge } from "../components/shared";
-import { MECHANISMS, OOVS, COVERAGE_MATRIX } from "../vmfs-data";
+import { Layout, BentoCard, SectionHeader, Badge } from "../components/shared";
+import { MECHANISMS, OOVS, COVERAGE_MATRIX, SCORE_DIMENSIONS, EVIDENCE_LOCATIONS } from "../vmfs-data";
 
 // Mechanism Detail Modal
 function MechanismModal({ mechanism, isOpen, onClose }) {
@@ -9,12 +9,10 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
 
   const cov = COVERAGE_MATRIX.find((c) => c.mechanismId === mechanism.id);
   const oovKeys = ["oov1_compute", "oov2_lineage", "oov3_deployment", "oov4_post_training"];
-  const scoreColors = {
-    technicalFeasibility: "#0a84ff",
-    politicalTractability: "#bf5af2",
-    sovereigntyImpact: "#ff9f0a",
-    globalSouthAdoptability: "#32d74b",
-  };
+  
+  const avgNewScore = mechanism.newScores
+    ? (mechanism.newScores.hardness + mechanism.newScores.burden + mechanism.newScores.intrusion + mechanism.newScores.robustness) / 4
+    : 3.0;
 
   return (
     <>
@@ -35,7 +33,7 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "90%",
-          maxWidth: "800px",
+          maxWidth: "900px",
           maxHeight: "85vh",
           background: "var(--bg-elevated)",
           borderRadius: "24px",
@@ -61,6 +59,24 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
             <p style={{ fontSize: "14px", color: "var(--text-secondary)", maxWidth: "500px", lineHeight: 1.6 }}>
               {mechanism.definition}
             </p>
+            {mechanism.evidenceLocations && (
+              <div style={{ display: "flex", gap: "6px", marginTop: "12px", flexWrap: "wrap" }}>
+                {mechanism.evidenceLocations.map(loc => {
+                  const locObj = Object.values(EVIDENCE_LOCATIONS).find(l => l.id === loc);
+                  return (
+                    <span key={loc} style={{
+                      padding: "4px 10px",
+                      background: "rgba(50, 215, 75, 0.1)",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      color: "var(--accent)",
+                    }}>
+                      {locObj?.name?.split('/')[0]?.trim() || loc}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div style={{ textAlign: "right", minWidth: "100px" }}>
@@ -69,18 +85,13 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
                 fontSize: "42px",
                 fontWeight: 700,
                 fontFamily: "var(--mono)",
-                color:
-                  mechanism.vmfsScores.weightedAvg >= 3.5
-                    ? "var(--accent)"
-                    : mechanism.vmfsScores.weightedAvg >= 2.5
-                    ? "var(--orange)"
-                    : "var(--red)",
+                color: avgNewScore >= 3.5 ? "var(--accent)" : avgNewScore >= 2.5 ? "var(--orange)" : "var(--red)",
                 lineHeight: 1,
               }}
             >
-              {mechanism.vmfsScores.weightedAvg.toFixed(1)}
+              {avgNewScore.toFixed(1)}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", marginTop: "4px" }}>Weighted Avg</div>
+            <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", marginTop: "4px" }}>Composite Score</div>
           </div>
 
           <button
@@ -100,82 +111,74 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.12)";
-              e.currentTarget.style.color = "var(--text)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.08)";
-              e.currentTarget.style.color = "var(--text-secondary)";
             }}
           >
-            ×
+            x
           </button>
         </div>
 
         {/* Content */}
-        <div style={{ padding: "24px 28px", overflowY: "auto", maxHeight: "calc(85vh - 120px)" }}>
-          {/* Scores */}
+        <div style={{ padding: "24px 28px", overflowY: "auto", maxHeight: "calc(85vh - 140px)" }}>
+          {/* New 4-Dimension Scores */}
           <div style={{ marginBottom: "28px" }}>
-            <h4
-              style={{
-                fontSize: "11px",
-                color: "var(--text-tertiary)",
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                marginBottom: "16px",
-              }}
-            >
+            <h4 style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px" }}>
               Dimension Scores
             </h4>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
-              {[
-                { key: "technicalFeasibility", label: "Technical" },
-                { key: "politicalTractability", label: "Political" },
-                { key: "sovereigntyImpact", label: "Sovereignty" },
-                { key: "globalSouthAdoptability", label: "Global South" },
-              ].map((d) => (
-                <div
-                  key={d.key}
-                  style={{
-                    padding: "16px",
-                    background: "rgba(255,255,255,0.03)",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <div style={{ fontSize: "11px", color: "var(--text-tertiary)", marginBottom: "8px" }}>{d.label}</div>
-                  <div style={{ fontSize: "28px", fontWeight: 700, fontFamily: "var(--mono)", color: scoreColors[d.key] }}>
-                    {mechanism.vmfsScores[d.key].toFixed(1)}
-                  </div>
-                  <div style={{ marginTop: "8px", height: "4px", background: "rgba(255,255,255,0.08)", borderRadius: "2px" }}>
-                    <div
-                      style={{
+              {Object.entries(SCORE_DIMENSIONS).map(([key, dim]) => {
+                const score = mechanism.newScores?.[key] || 3;
+                return (
+                  <div key={key} style={{ padding: "16px", background: "rgba(255,255,255,0.03)", borderRadius: "12px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-tertiary)", marginBottom: "4px" }}>{dim.name}</div>
+                    <div style={{ fontSize: "10px", color: dim.color, marginBottom: "12px" }}>{dim.question}</div>
+                    <div style={{ fontSize: "28px", fontWeight: 700, fontFamily: "var(--mono)", color: dim.color }}>
+                      {score.toFixed(1)}
+                    </div>
+                    <div style={{ marginTop: "8px", height: "4px", background: "rgba(255,255,255,0.08)", borderRadius: "2px" }}>
+                      <div style={{
                         height: "100%",
-                        width: `${(mechanism.vmfsScores[d.key] / 5) * 100}%`,
-                        background: scoreColors[d.key],
+                        width: `${(score / 5) * 100}%`,
+                        background: dim.color,
                         borderRadius: "2px",
-                      }}
-                    />
+                      }} />
+                    </div>
+                    <div style={{ fontSize: "10px", color: "var(--text-tertiary)", marginTop: "8px" }}>
+                      {dim.labels[Math.round(score) >= 4 ? 5 : Math.round(score) >= 2 ? 3 : 1]}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Evidence Produced & What It Needs */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "28px" }}>
+            <div>
+              <h4 style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }}>
+                Evidence Produced
+              </h4>
+              <div style={{ padding: "16px", background: "rgba(50, 215, 75, 0.05)", border: "1px solid rgba(50, 215, 75, 0.1)", borderRadius: "12px" }}>
+                <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                  {mechanism.evidenceProduced || mechanism.evidenceProducedList?.[0] || "N/A"}
+                </p>
+              </div>
+            </div>
+            <div>
+              <h4 style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }}>
+                What It Needs
+              </h4>
+              <div style={{ padding: "16px", background: "rgba(10, 132, 255, 0.05)", border: "1px solid rgba(10, 132, 255, 0.1)", borderRadius: "12px" }}>
+                <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                  {mechanism.whatItNeeds || mechanism.dependencies?.[0] || "N/A"}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* OoV Coverage */}
           <div style={{ marginBottom: "28px" }}>
-            <h4
-              style={{
-                fontSize: "11px",
-                color: "var(--text-tertiary)",
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-                marginBottom: "16px",
-              }}
-            >
+            <h4 style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px" }}>
               Verification Coverage
             </h4>
 
@@ -186,26 +189,20 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
                 const isPartial = cell?.coverage === "partial";
 
                 return (
-                  <div
-                    key={oov.id}
-                    style={{
-                      padding: "14px",
-                      background: isPrimary
-                        ? "rgba(50, 215, 75, 0.08)"
-                        : isPartial
-                        ? "rgba(10, 132, 255, 0.08)"
-                        : "rgba(255,255,255,0.02)",
-                      border: `1px solid ${
-                        isPrimary ? "rgba(50, 215, 75, 0.2)" : isPartial ? "rgba(10, 132, 255, 0.2)" : "var(--border)"
-                      }`,
-                      borderRadius: "10px",
-                      textAlign: "center",
-                    }}
-                  >
+                  <div key={oov.id} style={{
+                    padding: "14px",
+                    background: isPrimary ? "rgba(50, 215, 75, 0.08)" : isPartial ? "rgba(10, 132, 255, 0.08)" : "rgba(255,255,255,0.02)",
+                    border: `1px solid ${isPrimary ? "rgba(50, 215, 75, 0.2)" : isPartial ? "rgba(10, 132, 255, 0.2)" : "var(--border)"}`,
+                    borderRadius: "10px",
+                    textAlign: "center",
+                  }}>
                     <span style={{ fontSize: "18px", color: isPrimary ? "var(--accent)" : isPartial ? "var(--blue)" : "var(--text-tertiary)" }}>
-                      {isPrimary ? "●" : isPartial ? "◐" : "○"}
+                      {isPrimary ? "Y" : isPartial ? "-" : "X"}
                     </span>
                     <div style={{ fontSize: "12px", marginTop: "6px" }}>{oov.shortName}</div>
+                    <div style={{ fontSize: "10px", color: "var(--text-tertiary)", marginTop: "4px" }}>
+                      {isPrimary ? "Primary" : isPartial ? "Partial" : "None"}
+                    </div>
                   </div>
                 );
               })}
@@ -216,10 +213,12 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
             <div>
               <h4 style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }}>
-                Limitations
+                Biggest Limitation
               </h4>
               <div style={{ padding: "16px", background: "rgba(255, 69, 58, 0.05)", border: "1px solid rgba(255, 69, 58, 0.1)", borderRadius: "12px" }}>
-                <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>{mechanism.limitations.primary}</p>
+                <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                  {mechanism.biggestLimitation || mechanism.limitations?.primary}
+                </p>
               </div>
             </div>
 
@@ -228,39 +227,12 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
                 Evasion Vectors
               </h4>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                {mechanism.evasionModes.map((e, i) => (
-                  <Badge key={i} variant="default">
-                    {e}
-                  </Badge>
+                {mechanism.evasionModes?.map((e, i) => (
+                  <Badge key={i} variant="default">{e}</Badge>
                 ))}
               </div>
             </div>
           </div>
-
-          {/* Evidence */}
-          {mechanism.evidence && mechanism.evidence.length > 0 && (
-            <div style={{ marginTop: "28px" }}>
-              <h4 style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }}>
-                Evidence & Sources
-              </h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {mechanism.evidence.slice(0, 3).map((e, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: "12px 16px",
-                      background: "rgba(255,255,255,0.02)",
-                      borderRadius: "8px",
-                      fontSize: "13px",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    {e}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>
@@ -270,10 +242,10 @@ function MechanismModal({ mechanism, isOpen, onClose }) {
 // Main Page
 export default function MechanismsPage({ theme, toggleTheme }) {
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("weightedAvg");
+  const [sortBy, setSortBy] = useState("composite");
   const [selectedMechanism, setSelectedMechanism] = useState(null);
 
-  const isLight = theme === "light"; // ✅ helper
+  const isLight = theme === "light";
 
   const sorted = useMemo(() => {
     let filtered = [...MECHANISMS];
@@ -285,9 +257,14 @@ export default function MechanismsPage({ theme, toggleTheme }) {
     }
 
     filtered.sort((a, b) => {
-      if (sortBy === "weightedAvg") return b.vmfsScores.weightedAvg - a.vmfsScores.weightedAvg;
-      if (sortBy === "technical") return b.vmfsScores.technicalFeasibility - a.vmfsScores.technicalFeasibility;
-      if (sortBy === "political") return b.vmfsScores.politicalTractability - a.vmfsScores.politicalTractability;
+      const aNewScore = a.newScores ? (a.newScores.hardness + a.newScores.burden + a.newScores.intrusion + a.newScores.robustness) / 4 : 0;
+      const bNewScore = b.newScores ? (b.newScores.hardness + b.newScores.burden + b.newScores.intrusion + b.newScores.robustness) / 4 : 0;
+      
+      if (sortBy === "composite") return bNewScore - aNewScore;
+      if (sortBy === "hardness") return (b.newScores?.hardness || 0) - (a.newScores?.hardness || 0);
+      if (sortBy === "burden") return (b.newScores?.burden || 0) - (a.newScores?.burden || 0);
+      if (sortBy === "intrusion") return (b.newScores?.intrusion || 0) - (a.newScores?.intrusion || 0);
+      if (sortBy === "robustness") return (b.newScores?.robustness || 0) - (a.newScores?.robustness || 0);
       if (sortBy === "name") return a.shortName.localeCompare(b.shortName);
       return 0;
     });
@@ -300,11 +277,14 @@ export default function MechanismsPage({ theme, toggleTheme }) {
   return (
     <Layout theme={theme} toggleTheme={toggleTheme}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 24px" }}>
-        <SectionHeader label="Analysis" title="All Mechanisms" subtitle={`${MECHANISMS.length} verification mechanisms evaluated across ${OOVS.length} objects of verification`} />
+        <SectionHeader 
+          label="Analysis" 
+          title="All Mechanisms" 
+          subtitle={`${MECHANISMS.length} verification mechanisms evaluated across 4 dimensions: Evidence Hardness, Infrastructure Burden, Intrusion Level, and Evasion Robustness`} 
+        />
 
         {/* Controls */}
         <div style={{ display: "flex", gap: "16px", marginBottom: "32px", flexWrap: "wrap" }}>
-          {/* Search */}
           <input
             type="text"
             placeholder="Search mechanisms..."
@@ -323,7 +303,6 @@ export default function MechanismsPage({ theme, toggleTheme }) {
             }}
           />
 
-          {/* ✅ Sort (fixed options in light mode) */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -337,40 +316,22 @@ export default function MechanismsPage({ theme, toggleTheme }) {
               cursor: "pointer",
             }}
           >
-            <option
-              value="weightedAvg"
-              style={{
-                color: isLight ? "#111" : "var(--text)",
-                background: isLight ? "#fff" : "#111",
-              }}
-            >
-              Sort: Weighted Avg
+            <option value="composite" style={{ color: isLight ? "#111" : "var(--text)", background: isLight ? "#fff" : "#111" }}>
+              Sort: Composite Score
             </option>
-            <option
-              value="technical"
-              style={{
-                color: isLight ? "#111" : "var(--text)",
-                background: isLight ? "#fff" : "#111",
-              }}
-            >
-              Sort: Technical
+            <option value="hardness" style={{ color: isLight ? "#111" : "var(--text)", background: isLight ? "#fff" : "#111" }}>
+              Sort: Hardness (Trust)
             </option>
-            <option
-              value="political"
-              style={{
-                color: isLight ? "#111" : "var(--text)",
-                background: isLight ? "#fff" : "#111",
-              }}
-            >
-              Sort: Political
+            <option value="burden" style={{ color: isLight ? "#111" : "var(--text)", background: isLight ? "#fff" : "#111" }}>
+              Sort: Burden (Cost)
             </option>
-            <option
-              value="name"
-              style={{
-                color: isLight ? "#111" : "var(--text)",
-                background: isLight ? "#fff" : "#111",
-              }}
-            >
+            <option value="intrusion" style={{ color: isLight ? "#111" : "var(--text)", background: isLight ? "#fff" : "#111" }}>
+              Sort: Intrusion (Friction)
+            </option>
+            <option value="robustness" style={{ color: isLight ? "#111" : "var(--text)", background: isLight ? "#fff" : "#111" }}>
+              Sort: Robustness (Cheating)
+            </option>
+            <option value="name" style={{ color: isLight ? "#111" : "var(--text)", background: isLight ? "#fff" : "#111" }}>
               Sort: Name
             </option>
           </select>
@@ -382,8 +343,8 @@ export default function MechanismsPage({ theme, toggleTheme }) {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "40px 1fr 80px 80px 80px 80px 80px 100px",
-              gap: "16px",
+              gridTemplateColumns: "40px 1.2fr 70px 70px 70px 70px 70px 100px",
+              gap: "12px",
               padding: "16px 20px",
               background: "rgba(255,255,255,0.02)",
               borderBottom: "1px solid var(--border)",
@@ -396,10 +357,10 @@ export default function MechanismsPage({ theme, toggleTheme }) {
           >
             <div>#</div>
             <div>Mechanism</div>
-            <div style={{ textAlign: "center" }}>Tech</div>
-            <div style={{ textAlign: "center" }}>Polit</div>
-            <div style={{ textAlign: "center" }}>Sov</div>
-            <div style={{ textAlign: "center" }}>G.South</div>
+            <div style={{ textAlign: "center" }}>Hard.</div>
+            <div style={{ textAlign: "center" }}>Burd.</div>
+            <div style={{ textAlign: "center" }}>Intr.</div>
+            <div style={{ textAlign: "center" }}>Rob.</div>
             <div style={{ textAlign: "center" }}>Avg</div>
             <div style={{ textAlign: "center" }}>Coverage</div>
           </div>
@@ -409,6 +370,9 @@ export default function MechanismsPage({ theme, toggleTheme }) {
             const cov = COVERAGE_MATRIX.find((c) => c.mechanismId === m.id);
             const primaryCount = oovKeys.filter((k) => cov?.[k]?.coverage === "primary").length;
             const partialCount = oovKeys.filter((k) => cov?.[k]?.coverage === "partial").length;
+            const avgScore = m.newScores
+              ? (m.newScores.hardness + m.newScores.burden + m.newScores.intrusion + m.newScores.robustness) / 4
+              : 3.0;
 
             return (
               <div
@@ -416,8 +380,8 @@ export default function MechanismsPage({ theme, toggleTheme }) {
                 onClick={() => setSelectedMechanism(m)}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "40px 1fr 80px 80px 80px 80px 80px 100px",
-                  gap: "16px",
+                  gridTemplateColumns: "40px 1.2fr 70px 70px 70px 70px 70px 100px",
+                  gap: "12px",
                   padding: "16px 20px",
                   borderBottom: "1px solid var(--border-subtle)",
                   cursor: "pointer",
@@ -426,47 +390,57 @@ export default function MechanismsPage({ theme, toggleTheme }) {
                 onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                <div
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: "6px",
-                    background: i < 3 ? "var(--accent)" : "rgba(255,255,255,0.06)",
-                    color: i < 3 ? "var(--bg)" : "var(--text-tertiary)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                  }}
-                >
+                <div style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "6px",
+                  background: i < 3 ? "var(--accent)" : "rgba(255,255,255,0.06)",
+                  color: i < 3 ? "var(--bg)" : "var(--text-tertiary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                }}>
                   {i + 1}
                 </div>
 
                 <div>
                   <div style={{ fontWeight: 600, fontSize: "14px" }}>{m.shortName}</div>
+                  <div style={{ fontSize: "10px", color: "var(--text-tertiary)", marginTop: "2px" }}>
+                    {m.evidenceLocations?.map(loc => {
+                      const locObj = Object.values(EVIDENCE_LOCATIONS).find(l => l.id === loc);
+                      return locObj?.name?.split('/')[0]?.trim() || loc;
+                    }).join(', ')}
+                  </div>
                 </div>
 
-                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: "#0a84ff" }}>{m.vmfsScores.technicalFeasibility.toFixed(1)}</div>
-                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: "#bf5af2" }}>{m.vmfsScores.politicalTractability.toFixed(1)}</div>
-                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: "#ff9f0a" }}>{m.vmfsScores.sovereigntyImpact.toFixed(1)}</div>
-                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: "#32d74b" }}>{m.vmfsScores.globalSouthAdoptability.toFixed(1)}</div>
+                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: SCORE_DIMENSIONS.hardness.color }}>
+                  {(m.newScores?.hardness || 3).toFixed(1)}
+                </div>
+                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: SCORE_DIMENSIONS.burden.color }}>
+                  {(m.newScores?.burden || 3).toFixed(1)}
+                </div>
+                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: SCORE_DIMENSIONS.intrusion.color }}>
+                  {(m.newScores?.intrusion || 3).toFixed(1)}
+                </div>
+                <div style={{ textAlign: "center", fontFamily: "var(--mono)", color: SCORE_DIMENSIONS.robustness.color }}>
+                  {(m.newScores?.robustness || 3).toFixed(1)}
+                </div>
 
-                <div
-                  style={{
-                    textAlign: "center",
-                    fontFamily: "var(--mono)",
-                    fontWeight: 700,
-                    fontSize: "16px",
-                    color: m.vmfsScores.weightedAvg >= 3.5 ? "var(--accent)" : m.vmfsScores.weightedAvg >= 2.5 ? "var(--orange)" : "var(--red)",
-                  }}
-                >
-                  {m.vmfsScores.weightedAvg.toFixed(1)}
+                <div style={{
+                  textAlign: "center",
+                  fontFamily: "var(--mono)",
+                  fontWeight: 700,
+                  fontSize: "16px",
+                  color: avgScore >= 3.5 ? "var(--accent)" : avgScore >= 2.5 ? "var(--orange)" : "var(--red)",
+                }}>
+                  {avgScore.toFixed(1)}
                 </div>
 
                 <div style={{ textAlign: "center" }}>
-                  <span style={{ color: "var(--accent)", marginRight: "6px" }}>●{primaryCount}</span>
-                  <span style={{ color: "var(--blue)" }}>◐{partialCount}</span>
+                  <span style={{ color: "var(--accent)", marginRight: "6px" }}>Y{primaryCount}</span>
+                  <span style={{ color: "var(--blue)" }}>-{partialCount}</span>
                 </div>
               </div>
             );
@@ -474,7 +448,9 @@ export default function MechanismsPage({ theme, toggleTheme }) {
         </BentoCard>
 
         {sorted.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px", color: "var(--text-tertiary)" }}>No mechanisms found matching your search.</div>
+          <div style={{ textAlign: "center", padding: "60px", color: "var(--text-tertiary)" }}>
+            No mechanisms found matching your search.
+          </div>
         )}
       </div>
 
