@@ -14,7 +14,7 @@ export function Navbar({ theme, toggleTheme }) {
         { to: "/portfolio", label: "Compare Mechanisms" },
         { to: "/treaty-advisor", label: "Treaty Advisor" },
         { to: "/framework", label: "Framework" },
-        { to: "/crowdsource", label: "Add New" },
+        { to: "/crowdsource", label: "Submit" },
     ];
 
     return (

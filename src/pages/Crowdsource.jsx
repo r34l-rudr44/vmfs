@@ -359,8 +359,7 @@ export default function CrowdsourcePage({ theme, toggleTheme }) {
         <Layout theme={theme} toggleTheme={toggleTheme}>
             <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "60px 24px" }}>
                 <SectionHeader
-                    label="Crowdsourcing"
-                    title="Add New Mechanism"
+                    title="Add New Verification Mechanism"
                     subtitle="Test your verification ideas against the VMFS framework. Describe a mechanism and see its predicted scores across all four dimensions."
                 />
 
