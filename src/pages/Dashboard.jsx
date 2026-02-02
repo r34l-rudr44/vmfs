@@ -20,9 +20,10 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
     const [dragging, setDragging] = useState(null);
     const [hovered, setHovered] = useState(null);
 
-    const size = 340;
+    const size = 400;
     const center = size / 2;
     const radius = 110;
+    const padding = 50;
 
     const dimensions = [
         { key: "hardness", label: "Hardness", sublabel: "Trust", color: "#0a84ff" },
@@ -65,10 +66,10 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
     }, [dragging, handleDrag]);
 
     const labelPos = [
-        { x: center, y: 30, anchor: "middle" },
-        { x: size - 20, y: center, anchor: "start" },
-        { x: center, y: size - 25, anchor: "middle" },
-        { x: 20, y: center, anchor: "end" },
+        { x: center, y: padding, anchor: "middle" },
+        { x: size - padding, y: center, anchor: "start" },
+        { x: center, y: size - padding, anchor: "middle" },
+        { x: padding, y: center, anchor: "end" },
     ];
 
     if (!mechanism) return (
@@ -101,10 +102,48 @@ function RadarChart({ mechanism, customScores, onScoreChange }) {
 
                 {dimensions.map((d, i) => {
                     const p = labelPos[i];
+                    const isRobustness = d.key === "robustness";
+                    const labelLines = isRobustness ? ["Robust-", "ness"] : [d.label];
+                    const lineHeight = 11;
+                    const totalLabelHeight = labelLines.length * lineHeight;
+                    const labelYOffset = isRobustness ? (i === 1 ? -lineHeight / 2 : 0) : 0;
+                    
                     return (
                         <g key={i}>
-                            <text x={p.x} y={p.y} fill={hovered === i ? d.color : "var(--text-secondary)"} fontSize="11" fontWeight="500" textAnchor={p.anchor} dominantBaseline="middle">{d.label}</text>
-                            <text x={p.x} y={p.y + (i === 0 ? 14 : i === 2 ? -14 : 14)} fill={d.color} fontSize="12" fontFamily="var(--mono)" fontWeight="600" textAnchor={p.anchor} dominantBaseline="middle">{(scores[d.key] || 0).toFixed(1)}</text>
+                            <text 
+                                x={p.x} 
+                                y={p.y + labelYOffset} 
+                                fill={hovered === i ? d.color : "var(--text-secondary)"} 
+                                fontSize="12" 
+                                fontWeight="500" 
+                                textAnchor={p.anchor} 
+                                dominantBaseline="middle"
+                                style={{ userSelect: "none" }}
+                            >
+                                {labelLines.map((line, lineIdx) => (
+                                    <tspan 
+                                        key={lineIdx}
+                                        x={p.x} 
+                                        dy={lineIdx === 0 ? 0 : lineHeight}
+                                        textAnchor={p.anchor}
+                                    >
+                                        {line}
+                                    </tspan>
+                                ))}
+                            </text>
+                            <text 
+                                x={p.x} 
+                                y={p.y + (i === 0 ? 16 : i === 2 ? -16 : i === 1 ? 20 : 16)} 
+                                fill={d.color} 
+                                fontSize="12" 
+                                fontFamily="var(--mono)" 
+                                fontWeight="600" 
+                                textAnchor={p.anchor} 
+                                dominantBaseline="middle"
+                                style={{ userSelect: "none" }}
+                            >
+                                {(scores[d.key] || 0).toFixed(1)}
+                            </text>
                         </g>
                     );
                 })}
@@ -324,8 +363,10 @@ function MechanismCard({ m, isSelected, onClick, rank }) {
                 alignItems: "center",
                 gap: "12px",
                 padding: "14px 16px",
-                background: isSelected ? "rgba(50, 215, 75, 0.1)" : "rgba(255,255,255,0.02)",
-                border: `1px solid ${isSelected ? "rgba(50, 215, 75, 0.3)" : "rgba(255,255,255,0.06)"}`,
+                background: isSelected 
+                    ? "rgba(50, 215, 75, 0.15)" 
+                    : "var(--bg-elevated)",
+                border: `1px solid ${isSelected ? "rgba(50, 215, 75, 0.3)" : "var(--border)"}`,
                 borderRadius: "14px",
                 cursor: "pointer",
                 transition: "all 0.2s var(--ease)",
@@ -333,8 +374,8 @@ function MechanismCard({ m, isSelected, onClick, rank }) {
         >
             <div style={{
                 width: "28px", height: "28px", borderRadius: "8px",
-                background: rank <= 3 ? "var(--accent)" : "rgba(255,255,255,0.06)",
-                color: rank <= 3 ? "var(--bg)" : "var(--text-tertiary)",
+                background: rank <= 3 ? "var(--accent)" : "var(--bg-card)",
+                color: rank <= 3 ? "var(--bg)" : "var(--text-secondary)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: "12px", fontWeight: 700, flexShrink: 0,
             }}>{rank}</div>

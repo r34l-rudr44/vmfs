@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { buildOnePagerPrompt } from "./onePagerPrompt.js";
 import { VMFS_SCORER_PROMPT, VERIFICATION_ARCHITECT_PROMPT } from "./vmfsPrompts.js";
 
@@ -11,7 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+const groq = new Groq({
+    apiKey: process.env.GROQ_AI_API_KEY,
+});
+
+const MODEL_NAME = "moonshotai/kimi-k2-instruct-0905";
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -27,12 +31,19 @@ app.post('/api/generate-one-pager', async (req, res) => {
             return res.status(400).json({ error: 'Treaty text is too short or missing' });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const prompt = buildOnePagerPrompt(treatyText, treatyName);
         
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const onePagerContent = response.text();
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "user",
+                    content: prompt,
+                },
+            ],
+            model: MODEL_NAME,
+        });
+        
+        const onePagerContent = completion.choices[0]?.message?.content || "";
 
         res.json({ 
             success: true, 
@@ -54,8 +65,6 @@ app.post('/api/score-mechanism', async (req, res) => {
             return res.status(400).json({ error: 'Mechanism description is too short' });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        
         const prompt = `${VMFS_SCORER_PROMPT}
 
 INPUT MECHANISM TO SCORE:
@@ -63,9 +72,17 @@ INPUT MECHANISM TO SCORE:
 
 Analyze this mechanism and output the JSON scores.`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const textResponse = response.text();
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "user",
+                    content: prompt,
+                },
+            ],
+            model: MODEL_NAME,
+        });
+        
+        const textResponse = completion.choices[0]?.message?.content || "";
 
         // Parse JSON response
         const cleanJson = textResponse
@@ -96,27 +113,33 @@ app.post('/api/chat', async (req, res) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        
-        const historyText = conversationHistory?.map(m => 
-            `${m.role === 'user' ? 'User' : 'Verification Architect'}: ${m.content}`
-        ).join('\n\n') || '';
+        const historyMessages = conversationHistory?.map(m => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.content
+        })) || [];
 
-        const prompt = `${VERIFICATION_ARCHITECT_PROMPT}
+        const messages = [
+            {
+                role: "system",
+                content: VERIFICATION_ARCHITECT_PROMPT
+            },
+            ...historyMessages,
+            {
+                role: "user",
+                content: message
+            }
+        ];
 
-Previous conversation:
-${historyText}
+        const completion = await groq.chat.completions.create({
+            messages: messages,
+            model: MODEL_NAME,
+        });
 
-User: ${message}
-
-Respond as the Verification Architect. Be precise, cite scores, and focus on trade-offs.`;
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
+        const responseText = completion.choices[0]?.message?.content || "";
 
         res.json({ 
             success: true, 
-            response: response.text()
+            response: responseText
         });
     } catch (error) {
         console.error('Chat error:', error);
@@ -133,8 +156,6 @@ app.post('/api/analyze-treaty', async (req, res) => {
             return res.status(400).json({ error: 'Treaty text is too short' });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        
         const prompt = `You are a Verification Architect analyzing treaty requirements.
 
 Analyze this policy/treaty document and extract verification requirements:
@@ -156,9 +177,17 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exa
 
 Focus on concrete, actionable verification needs related to AI systems.`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const textResponse = response.text();
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "user",
+                    content: prompt,
+                },
+            ],
+            model: MODEL_NAME,
+        });
+        
+        const textResponse = completion.choices[0]?.message?.content || "";
 
         const cleanJson = textResponse
             .replace(/```json\n?/g, '')

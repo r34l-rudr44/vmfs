@@ -10,9 +10,10 @@ function MechanismRadarChart({ scores }) {
     const svgRef = useRef(null);
     const [hovered, setHovered] = useState(null);
 
-    const size = 340;
+    const size = 400;
     const center = size / 2;
     const radius = 110;
+    const padding = 50;
 
     const dimensions = [
         { key: "hardness", label: "Hardness", sublabel: "Trust", color: "#0a84ff" },
@@ -33,10 +34,10 @@ function MechanismRadarChart({ scores }) {
     }).join(" ");
 
     const labelPos = [
-        { x: center, y: 30, anchor: "middle" },
-        { x: size - 20, y: center, anchor: "start" },
-        { x: center, y: size - 25, anchor: "middle" },
-        { x: 20, y: center, anchor: "end" },
+        { x: center, y: padding, anchor: "middle" },
+        { x: size - padding, y: center, anchor: "start" },
+        { x: center, y: size - padding, anchor: "middle" },
+        { x: padding, y: center, anchor: "end" },
     ];
 
     if (!scores) {
@@ -71,28 +72,45 @@ function MechanismRadarChart({ scores }) {
 
                 {dimensions.map((d, i) => {
                     const p = labelPos[i];
+                    const isRobustness = d.key === "robustness";
+                    const labelLines = isRobustness ? ["Robust-", "ness"] : [d.label];
+                    const lineHeight = 11;
+                    const totalLabelHeight = labelLines.length * lineHeight;
+                    const labelYOffset = isRobustness ? (i === 1 ? -lineHeight / 2 : 0) : 0;
+                    
                     return (
                         <g key={i}>
                             <text 
                                 x={p.x} 
-                                y={p.y} 
+                                y={p.y + labelYOffset} 
                                 fill={hovered === i ? d.color : "var(--text-secondary)"} 
-                                fontSize="11" 
+                                fontSize="12" 
                                 fontWeight="500" 
                                 textAnchor={p.anchor} 
                                 dominantBaseline="middle"
+                                style={{ userSelect: "none" }}
                             >
-                                {d.label}
+                                {labelLines.map((line, lineIdx) => (
+                                    <tspan 
+                                        key={lineIdx}
+                                        x={p.x} 
+                                        dy={lineIdx === 0 ? 0 : lineHeight}
+                                        textAnchor={p.anchor}
+                                    >
+                                        {line}
+                                    </tspan>
+                                ))}
                             </text>
                             <text 
                                 x={p.x} 
-                                y={p.y + (i === 0 ? 14 : i === 2 ? -14 : 14)} 
+                                y={p.y + (i === 0 ? 16 : i === 2 ? -16 : i === 1 ? 20 : 16)} 
                                 fill={d.color} 
-                                fontSize="13" 
+                                fontSize="12" 
                                 fontFamily="var(--mono)" 
                                 fontWeight="600" 
                                 textAnchor={p.anchor} 
                                 dominantBaseline="middle"
+                                style={{ userSelect: "none" }}
                             >
                                 {(scores[d.key] || 0).toFixed(1)}
                             </text>

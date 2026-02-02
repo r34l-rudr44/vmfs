@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Layout, BentoCard, Button, Badge } from "../components/shared";
 import { MECHANISMS, COVERAGE_MATRIX, SCORE_DIMENSIONS, EVIDENCE_LOCATIONS, VERIFICATION_GOALS } from "../vmfs-data";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// Using backend API instead of direct Groq SDK (browser compatibility)
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Set up PDF.js worker - use unpkg CDN for reliability
@@ -13,26 +13,47 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${PDFJS_V
 // VERIFICATION ARCHITECT SYSTEM PROMPT
 // ============================================================================
 const VERIFICATION_ARCHITECT_PROMPT = `You are the "Verification Architect" - a Technical Auditor for international treaty verification.
+
 Your Goal: Help users build a robust treaty verification regime.
 Your Persona: You care about "Proof" and "Cost." You are precise, cite specific scores, and focus on trade-offs.
 
+RESPONSE FORMAT REQUIREMENTS:
+1. Always start with a TL;DR section: Provide a brief 2-3 sentence summary of your recommendation or answer before the detailed response.
+2. Use clean formatting: Minimize markdown symbols (avoid excessive asterisks, dashes, or formatting). Use simple line breaks and clear structure.
+3. Keep it readable: Use plain text with minimal symbols. Only use bold for mechanism names when necessary.
+
 KNOWLEDGE BASE - You have access to these mechanism scores:
 
-${MECHANISMS.map(m => `${m.shortName}:
-  - Hardness (Trust): ${m.newScores?.hardness || 'N/A'}/5 - Is evidence physics-based or human trust?
-  - Burden (Cost): ${m.newScores?.burden || 'N/A'}/5 - Infrastructure needed (5=law only, 1=new hardware)
-  - Intrusion (Friction): ${m.newScores?.intrusion || 'N/A'}/5 - IP/privacy exposure (5=external, 1=deep access)
-  - Robustness (Cheating): ${m.newScores?.robustness || 'N/A'}/5 - Evasion difficulty
-  - Evidence Location: ${m.evidenceLocations?.join(', ') || 'N/A'}
-  - Evidence Produced: ${m.evidenceProduced || 'N/A'}
-  - Biggest Limitation: ${m.biggestLimitation || m.limitations?.primary || 'N/A'}`).join('\n\n')}
+${MECHANISMS.map(m => `${m.shortName}
+  Hardness: ${m.newScores?.hardness || 'N/A'}/5 (Trust - physics-based or human trust?)
+  Burden: ${m.newScores?.burden || 'N/A'}/5 (Cost - 5=law only, 1=new hardware)
+  Intrusion: ${m.newScores?.intrusion || 'N/A'}/5 (Friction - 5=external, 1=deep access)
+  Robustness: ${m.newScores?.robustness || 'N/A'}/5 (Cheating - evasion difficulty)
+  Evidence Location: ${m.evidenceLocations?.join(', ') || 'N/A'}
+  Evidence Produced: ${m.evidenceProduced || 'N/A'}
+  Biggest Limitation: ${m.biggestLimitation || m.limitations?.primary || 'N/A'}`).join('\n\n')}
+
+DIMENSION INTERPRETATIONS:
+Hardness (Trust): 5=physics/crypto proof, 1=human testimony
+Burden (Cost): 5=law/software only, 1=new hardware required
+Intrusion (Friction): 5=external/no IP exposure, 1=deep access to secrets
+Robustness (Cheating): 5=airtight, 1=easy to bypass
 
 RULES:
-1. Always cite specific scores (e.g., "I recommend Remote Sensing because it has High Intrusion score (5.0) meaning zero IP exposure.")
-2. Focus on trade-offs (e.g., "This tool has strong trust evidence, but requires significant infrastructure investment.")
-3. Use the Evidence Location to explain WHERE the tool looks.
-4. When recommending portfolios, check for blind spots - especially chip-level coverage.
-5. Be concise and actionable. You are a technical auditor, not a diplomat.`;
+1. Always start with TL;DR: Begin every response with a 2-3 sentence summary in a "TL;DR:" section.
+2. Always cite specific scores (e.g., "I recommend Remote Sensing because it has Intrusion: 5.0, meaning zero IP exposure.")
+3. Focus on trade-offs (e.g., "This tool has high trust evidence (Hardness: 4.5), but requires significant infrastructure (Burden: 1.5).")
+4. Use Evidence Locations to explain WHERE each tool looks.
+5. When recommending portfolios, check for blind spots - especially chip-level coverage.
+6. Be concise and actionable. You are a technical auditor, not a diplomat.
+7. Use clean formatting: Avoid excessive markdown symbols. Use simple structure with clear line breaks.
+8. If a portfolio lacks chip_hardware coverage, warn: "Your portfolio cannot verify digital compute activity. A bad actor could use legal hardware for illegal training."
+
+EXAMPLE RESPONSE FORMAT:
+
+TL;DR: [Brief 2-3 sentence summary of your recommendation]
+
+[Detailed response with clean formatting, minimal symbols, clear structure]`;
 
 // ============================================================================
 // QUICK CHIP PROMPTS
@@ -65,8 +86,8 @@ export default function TreatyAdvisorPage({ theme, toggleTheme }) {
     const [newMechanismResult, setNewMechanismResult] = useState(null);
     const [scoringNewMechanism, setScoringNewMechanism] = useState(false);
 
-    // Initialize Gemini
-    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_API_KEY);
+    // Backend API URL
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
     const handleFileUpload = (e) => {
         const uploadedFile = e.target.files[0];
@@ -118,8 +139,6 @@ export default function TreatyAdvisorPage({ theme, toggleTheme }) {
 
             setExtractedText(text);
 
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
             const prompt = `You are a Verification Architect analyzing treaty requirements.
 
 Analyze this policy/treaty document and extract verification requirements:
@@ -141,18 +160,22 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exa
 
 Focus on concrete, actionable verification needs related to AI systems. Map requirements to evidence locations where possible.`;
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const textResponse = response.text();
+            const response = await fetch(`${API_BASE_URL}/api/analyze-treaty`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    treatyText: text
+                }),
+            });
 
-            const cleanJson = textResponse
-                .replace(/```json\n?/g, '')
-                .replace(/```\n?/g, '')
-                .replace(/^[^{]*/, '')
-                .replace(/[^}]*$/, '')
-                .trim();
-            
-            const analysis = JSON.parse(cleanJson);
+            if (!response.ok) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const analysis = data.analysis;
 
             if (!analysis.requirements || !Array.isArray(analysis.requirements)) {
                 throw new Error("Invalid response format from AI");
@@ -253,31 +276,36 @@ Focus on concrete, actionable verification needs related to AI systems. Map requ
         setChatLoading(true);
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            
-            const conversationHistory = chatMessages.map(m => 
-                `${m.role === 'user' ? 'User' : 'Verification Architect'}: ${m.content}`
-            ).join('\n\n');
+            const conversationHistory = chatMessages.map(m => ({
+                role: m.role,
+                content: m.content
+            }));
 
-            const prompt = `${VERIFICATION_ARCHITECT_PROMPT}
+            const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    conversationHistory: conversationHistory
+                }),
+            });
 
-Previous conversation:
-${conversationHistory}
+            if (!response.ok) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
 
-User: ${message}
-
-Respond as the Verification Architect. Be precise, cite scores, and focus on trade-offs.`;
-
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const assistantMessage = { role: 'assistant', content: response.text() };
+            const data = await response.json();
+            const assistantMessage = { role: 'assistant', content: data.response };
             
             setChatMessages(prev => [...prev, assistantMessage]);
         } catch (err) {
             console.error("Chat error:", err);
+            const errorMessage = err?.message || err?.toString() || "Unknown error";
             setChatMessages(prev => [...prev, { 
                 role: 'assistant', 
-                content: "I encountered an error processing your request. Please try again." 
+                content: `I encountered an error processing your request: ${errorMessage}. Please check your API key and try again.` 
             }]);
         } finally {
             setChatLoading(false);
@@ -292,8 +320,6 @@ Respond as the Verification Architect. Be precise, cite scores, and focus on tra
         setNewMechanismResult(null);
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
             const prompt = `You are the VMFS Scorer (Verification Mechanism Feasibility Scorer).
 
 Analyze this new mechanism idea and score it:
@@ -327,18 +353,25 @@ SCORING RULES:
 - Intrusion: 5=external/aggregate, 3=metadata/API, 1=deep IP access
 - Robustness: 5=airtight, 3=costly evasion, 1=known gaps`;
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const textResponse = response.text();
+            const response = await fetch(`${API_BASE_URL}/api/score-mechanism`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mechanismDescription: newMechanismInput
+                }),
+            });
 
-            const cleanJson = textResponse
-                .replace(/```json\n?/g, '')
-                .replace(/```\n?/g, '')
-                .replace(/^[^{]*/, '')
-                .replace(/[^}]*$/, '')
-                .trim();
+            if (!response.ok) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
 
-            const scored = JSON.parse(cleanJson);
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.error || "Failed to score mechanism");
+            }
+            const scored = data.scores;
             setNewMechanismResult(scored);
         } catch (err) {
             console.error("Scoring error:", err);
@@ -355,7 +388,6 @@ SCORING RULES:
         setError(null);
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
             const treatyName = file?.name?.replace(/\.[^/.]+$/, "") || "Treaty";
 
             const prompt = `You are the Verification Architect generating an executive brief.
@@ -406,9 +438,23 @@ Generate a structured one-page brief in MARKDOWN format:
 ---
 *Generated by VMFS Verification Architect*`;
 
-            const genResult = await model.generateContent(prompt);
-            const response = await genResult.response;
-            setOnePager(response.text());
+            const response = await fetch(`${API_BASE_URL}/api/generate-one-pager`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    treatyText: extractedText,
+                    treatyName: treatyName
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            setOnePager(data.onePager);
         } catch (err) {
             console.error("One-pager generation error:", err);
             setError("Failed to generate one-pager: " + err.message);
