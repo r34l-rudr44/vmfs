@@ -551,7 +551,7 @@ Generate a structured one-page brief in MARKDOWN format:
                     </p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", position: "relative", zIndex: 1 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", position: "relative", zIndex: 1 }}>
                     {/* Left Column - Document Analysis & Crowdsourcing */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                         {/* Document Upload */}

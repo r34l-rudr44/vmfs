@@ -411,7 +411,7 @@ function DetailPanel({ mechanism }) {
                 <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", marginBottom: "8px" }}>
                     Dimension Scores
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px" }}>
                     {dimensions.map(([key, dim]) => {
                         const score = mechanism.newScores?.[key] || 3;
                         return (
@@ -432,7 +432,7 @@ function DetailPanel({ mechanism }) {
             </div>
 
             {/* OoV Coverage */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px", marginBottom: "16px" }}>
                 {OOVS.map((oov, i) => {
                     const cell = cov?.[oovKeys[i]];
                     const isPrimary = cell?.coverage === "primary";
@@ -517,7 +517,7 @@ export default function DashboardPage({ theme, toggleTheme }) {
                 </div>
 
                 {/* Bento Grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px", marginBottom: "20px" }}>
                     {/* Radar */}
                     <BentoCard hoverable={false}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
