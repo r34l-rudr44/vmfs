@@ -86,8 +86,9 @@ export default function TreatyAdvisorPage({ theme, toggleTheme }) {
     const [newMechanismResult, setNewMechanismResult] = useState(null);
     const [scoringNewMechanism, setScoringNewMechanism] = useState(false);
 
-    // Backend API URL
-    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    // Backend API URL - use same-origin /api in production, env override or localhost in dev
+    const isProd = import.meta.env.MODE === "production";
+    const API_BASE_URL = isProd ? "" : (import.meta.env.VITE_API_URL || "http://localhost:3001");
 
     const handleFileUpload = (e) => {
         const uploadedFile = e.target.files[0];

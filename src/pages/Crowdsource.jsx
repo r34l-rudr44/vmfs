@@ -261,8 +261,9 @@ export default function CrowdsourcePage({ theme, toggleTheme }) {
     const [generatedMechanism, setGeneratedMechanism] = useState(null);
     const [error, setError] = useState(null);
 
-    // Backend API URL
-    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+    // Backend API URL - use same-origin /api in production, env override or localhost in dev
+    const isProd = import.meta.env.MODE === "production";
+    const API_BASE_URL = isProd ? "" : (import.meta.env.VITE_API_URL || "http://localhost:3001");
 
     const handleSubmit = async () => {
         if (!idea.trim()) return;
