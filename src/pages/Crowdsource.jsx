@@ -200,7 +200,7 @@ function NewMechanismCard({ mechanism }) {
                 {mechanism.description}
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px", marginBottom: "16px" }}>
                 {['hardness', 'burden', 'intrusion', 'robustness'].map(dim => {
                     const score = mechanism.scores[dim];
                     const dimConfig = SCORE_DIMENSIONS[dim];
@@ -517,7 +517,7 @@ export default function CrowdsourcePage({ theme, toggleTheme }) {
                     subtitle="Test your verification ideas against the VMFS framework. Describe a mechanism and see its predicted scores across all four dimensions."
                 />
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
                     {/* Input Panel */}
                     <div>
                         <BentoCard hoverable={false}>

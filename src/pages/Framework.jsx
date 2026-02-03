@@ -93,7 +93,7 @@ export default function FrameworkPage({ theme, toggleTheme }) {
                         subtitle="Scores must be derived strictly from mechanism characteristics, not assumptions"
                     />
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px" }}>
                         <BentoCard hoverable={false}>
                             <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "12px", color: "var(--accent)" }}>Goal-Based Entry</h3>
                             <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: "16px" }}>
@@ -127,7 +127,7 @@ export default function FrameworkPage({ theme, toggleTheme }) {
                         subtitle="Seven evidence locations where verification mechanisms can look for proof"
                     />
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
                         {Object.values(EVIDENCE_LOCATIONS).map((loc, i) => {
                             const colors = ["#0a84ff", "#bf5af2", "#ff9f0a", "#32d74b", "#ff453a", "#64d2ff", "#ffd60a"];
                             return (
@@ -199,7 +199,7 @@ export default function FrameworkPage({ theme, toggleTheme }) {
                                     </div>
                                 </div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "12px" }}>
                                     {dim.levels.map((level, i) => (
                                         <div key={i} style={{
                                             padding: "14px",
@@ -232,34 +232,41 @@ export default function FrameworkPage({ theme, toggleTheme }) {
                         subtitle="What specifically can be verified about AI systems"
                     />
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
                         {OOVS.map((oov, i) => {
                             const colors = ["#0a84ff", "#bf5af2", "#ff9f0a", "#32d74b"];
                             const labels = ["01", "02", "03", "04"];
                             return (
-                                <BentoCard key={oov.id} hoverable={false} style={{ padding: "24px" }}>
-                                    <div style={{
-                                        width: "44px",
-                                        height: "44px",
-                                        borderRadius: "10px",
-                                        background: `${colors[i]}15`,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        marginBottom: "14px",
-                                        fontSize: "14px",
-                                        fontWeight: 700,
-                                        fontFamily: "var(--mono)",
-                                        color: colors[i],
-                                    }}>
-                                        {labels[i]}
+                                <BentoCard key={oov.id} hoverable={false} style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                    <div>
+                                        <div style={{
+                                            width: "44px",
+                                            height: "44px",
+                                            borderRadius: "10px",
+                                            background: `${colors[i]}15`,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginBottom: "14px",
+                                            fontSize: "14px",
+                                            fontWeight: 700,
+                                            fontFamily: "var(--mono)",
+                                            color: colors[i],
+                                        }}>
+                                            {labels[i]}
+                                        </div>
+                                        <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "8px", color: colors[i] }}>
+                                            {oov.shortName}
+                                        </h3>
+                                        <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6, maxHeight: "140px", overflow: "hidden" }}>
+                                            {oov.definition}
+                                        </p>
                                     </div>
-                                    <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "8px", color: colors[i] }}>
-                                        {oov.shortName}
-                                    </h3>
-                                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                                        {oov.definition}
-                                    </p>
+                                    {oov.definition.length > 220 && (
+                                        <div style={{ marginTop: "8px", fontSize: "11px", color: "var(--accent)", cursor: "pointer" }}>
+                                            See more in full framework →
+                                        </div>
+                                    )}
                                 </BentoCard>
                             );
                         })}
@@ -274,7 +281,7 @@ export default function FrameworkPage({ theme, toggleTheme }) {
                         subtitle="How mechanisms are rated for each Object of Verification"
                     />
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px" }}>
                         {[
                             {
                                 symbol: "Y",

@@ -8,7 +8,27 @@ import { VMFS_SCORER_PROMPT, VERIFICATION_ARCHITECT_PROMPT } from "./vmfsPrompts
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration - allow production app and local dev
+const allowedOrigins = [
+    'https://www.vmfs.app',
+    'http://localhost:5173',
+    process.env.CLIENT_ORIGIN,
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow non-browser / same-origin requests with no origin header
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`CORS not allowed from origin: ${origin}`));
+    },
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json({ limit: '10mb' }));
 
 const groq = new Groq({

@@ -316,7 +316,7 @@ function MechanismSelector({ mechanism, isSelected, onToggle, disabled }) {
             </div>
             
             {/* Mini score bars for new dimensions */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "4px", marginBottom: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "4px", marginBottom: "10px" }}>
                 {['hardness', 'burden', 'intrusion', 'robustness'].map(dim => {
                     const score = mechanism.newScores?.[dim] || 3;
                     const dimConfig = SCORE_DIMENSIONS[dim];
@@ -452,7 +452,7 @@ function EvidenceLocationCoverage({ portfolio }) {
                 </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px" }}>
                 {Object.values(locationCoverage).map((loc) => {
                     const isCovered = loc.mechanisms.length > 0;
                     return (
@@ -541,7 +541,7 @@ function CoverageMatrix({ portfolio }) {
                 </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px" }}>
                 {coverageData.map((data, i) => (
                     <div
                         key={data.oov.id}
@@ -647,7 +647,7 @@ export default function PortfolioPage({ theme, toggleTheme }) {
                     subtitle={`Select up to ${MAX_SELECTION} verification mechanisms to simulate a treaty regime and analyze coverage, trade-offs, and blind spots`}
                 />
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "24px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px" }}>
                     {/* Selection Panel */}
                     <div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
@@ -672,7 +672,7 @@ export default function PortfolioPage({ theme, toggleTheme }) {
                             )}
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "12px" }}>
                             {sorted.map(m => (
                                 <MechanismSelector
                                     key={m.id}
@@ -729,7 +729,7 @@ export default function PortfolioPage({ theme, toggleTheme }) {
                                 </BentoCard>
 
                                 {/* Radar Chart & Score Breakdown */}
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }}>
                                     <BentoCard hoverable={false}>
                                         <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", marginBottom: "16px" }}>
                                             Portfolio Radar

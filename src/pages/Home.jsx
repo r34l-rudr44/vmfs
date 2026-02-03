@@ -1,5 +1,6 @@
 // Home Page - Landing/Hero with New Framework Messaging
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Layout, BentoCard, Button } from "../components/shared";
 import { MECHANISMS, OOVS, KEY_FINDINGS, SCORE_DIMENSIONS } from "../vmfs-data";
 
@@ -32,6 +33,7 @@ const DimensionIcons = {
 };
 
 export default function HomePage({ theme, toggleTheme }) {
+    const [selectedOov, setSelectedOov] = useState(null);
     // Calculate stats using new scoring
     const avgScore = MECHANISMS.reduce((a, m) => {
         const score = m.newScores 
@@ -51,27 +53,23 @@ export default function HomePage({ theme, toggleTheme }) {
         <Layout theme={theme} toggleTheme={toggleTheme}>
             {/* Hero Section */}
             <section style={{
-                minHeight: "calc(100vh - 64px)",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 alignItems: "center",
                 textAlign: "center",
-                padding: "60px 24px",
+                padding: "80px 16px 48px",
                 position: "relative",
                 overflow: "hidden",
             }}>
-                {/* Background gradient */}
+                {/* Background gradient (subtle, mobile-friendly) */}
                 <div style={{
                     position: "absolute",
-                    top: "20%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    width: "800px",
-                    height: "600px",
+                    inset: "auto 0 0 0",
+                    height: "260px",
                     background: theme === 'light' 
-                        ? "radial-gradient(ellipse, rgba(30, 64, 175, 0.08) 0%, transparent 70%)"
-                        : "radial-gradient(ellipse, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
+                        ? "radial-gradient(circle at top, rgba(30, 64, 175, 0.08) 0%, transparent 70%)"
+                        : "radial-gradient(circle at top, rgba(50, 215, 75, 0.06) 0%, transparent 70%)",
                     pointerEvents: "none",
                 }} />
 
@@ -126,7 +124,9 @@ export default function HomePage({ theme, toggleTheme }) {
                 {/* CTA Buttons */}
                 <div style={{
                     display: "flex",
-                    gap: "16px",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
                     animation: "slideUp 0.6s var(--ease) 0.3s both",
                 }}>
                     <Link to="/dashboard" style={{ textDecoration: "none" }}>
@@ -144,8 +144,10 @@ export default function HomePage({ theme, toggleTheme }) {
                 {/* Stats */}
                 <div style={{
                     display: "flex",
-                    gap: "56px",
-                    marginTop: "80px",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    gap: "32px",
+                    marginTop: "48px",
                     animation: "fadeIn 0.6s var(--ease) 0.5s both",
                 }}>
                     {[
@@ -178,14 +180,14 @@ export default function HomePage({ theme, toggleTheme }) {
                 maxWidth: "1000px",
                 margin: "0 auto",
             }}>
-                <div style={{ textAlign: "center", marginBottom: "48px" }}>
-                    <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>Four Scoring Dimensions</h2>
+                <div style={{ textAlign: "center", marginBottom: "32px" }}>
+                    <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px" }}>Four Scoring Dimensions</h2>
                     <p style={{ fontSize: "15px", color: "var(--text-secondary)" }}>
                         Every mechanism is evaluated across these critical trade-off dimensions
                     </p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px" }}>
                     {Object.entries(SCORE_DIMENSIONS).map(([key, dim], i) => (
                         <BentoCard key={key} hoverable style={{ padding: "24px" }}>
                             <div style={{
@@ -256,40 +258,43 @@ export default function HomePage({ theme, toggleTheme }) {
                 maxWidth: "1000px",
                 margin: "0 auto",
             }}>
-                <div style={{ textAlign: "center", marginBottom: "48px" }}>
-                    <h2 style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}>Goal-Based Entry</h2>
-                    <p style={{ fontSize: "15px", color: "var(--text-secondary)" }}>
+                <div style={{ textAlign: "center", marginBottom: "32px" }}>
+                    <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "8px" }}>Goal-Based Entry</h2>
+                    <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>
                         Start with what you want to verify, we will map you to the right tools
                     </p>
                 </div>
 
                 <div style={{
-                    padding: "32px",
+                    padding: "24px",
                     background: theme === 'light'
                         ? "linear-gradient(180deg, rgba(30, 64, 175, 0.06) 0%, rgba(30, 64, 175, 0.02) 100%)"
                         : "linear-gradient(180deg, rgba(50, 215, 75, 0.05) 0%, transparent 100%)",
-                    borderRadius: "20px",
+                    borderRadius: "16px",
                     border: theme === 'light'
                         ? "1px solid rgba(30, 64, 175, 0.12)"
                         : "1px solid rgba(50, 215, 75, 0.1)",
                 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "40px" }}>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>Your Goal</div>
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                        gap: "16px",
+                        alignItems: "stretch",
+                    }}>
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>Your Goal</div>
                             <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                                "I want to verify compute usage"
+                                “I want to verify compute usage”
                             </div>
                         </div>
-                        <div style={{ fontSize: "24px", color: "var(--text-tertiary)" }}>&rarr;</div>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>Evidence Location</div>
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>Evidence Location</div>
                             <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
                                 Chip / Hardware Level
                             </div>
                         </div>
-                        <div style={{ fontSize: "24px", color: "var(--text-tertiary)" }}>&rarr;</div>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>Mechanisms</div>
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>Mechanisms</div>
                             <div style={{ fontSize: "12px", color: "var(--accent)" }}>
                                 On-Chip Telemetry, TEE Attestation
                             </div>
@@ -319,11 +324,15 @@ export default function HomePage({ theme, toggleTheme }) {
 
                 <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                     gap: "16px",
                 }}>
                     {OOVS.map((oov, i) => (
-                        <BentoCard key={oov.id} hoverable style={{ padding: "24px" }}>
+                        <BentoCard
+                            key={oov.id}
+                            hoverable
+                            style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
+                        >
                             <div style={{
                                 width: "36px",
                                 height: "36px",
@@ -341,9 +350,31 @@ export default function HomePage({ theme, toggleTheme }) {
                                 {String(i + 1).padStart(2, "0")}
                             </div>
                             <h3 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "6px" }}>{oov.shortName}</h3>
-                            <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                                {oov.definition}
+                            <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "8px" }}>
+                                {oov.definition.length > 140
+                                    ? oov.definition.slice(0, 137) + "..."
+                                    : oov.definition}
                             </p>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedOov(oov)}
+                                style={{
+                                    alignSelf: "flex-start",
+                                    marginTop: "4px",
+                                    padding: "6px 10px",
+                                    borderRadius: "999px",
+                                    border: "none",
+                                    background: "rgba(0,0,0,0.04)",
+                                    color: "var(--accent)",
+                                    fontSize: "11px",
+                                    fontWeight: 600,
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.08em",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                See more
+                            </button>
                         </BentoCard>
                     ))}
                 </div>
@@ -355,6 +386,106 @@ export default function HomePage({ theme, toggleTheme }) {
                         </Button>
                     </Link>
                 </div>
+
+                {/* OoV Detail Modal */}
+                {selectedOov && (
+                    <div
+                        onClick={() => setSelectedOov(null)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.45)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            zIndex: 2000,
+                            padding: "16px",
+                        }}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                maxWidth: "600px",
+                                width: "100%",
+                                borderRadius: "20px",
+                                background: theme === 'light'
+                                    ? "rgba(255,255,255,0.96)"
+                                    : "rgba(15,15,17,0.98)",
+                                border: "1px solid var(--border)",
+                                boxShadow: "var(--shadow-lg)",
+                                padding: "24px 24px 20px",
+                                maxHeight: "80vh",
+                                overflowY: "auto",
+                            }}
+                        >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                                <h3 style={{ fontSize: "18px", fontWeight: 700 }}>
+                                    {selectedOov.name}
+                                </h3>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedOov(null)}
+                                    aria-label="Close"
+                                    style={{
+                                        border: "none",
+                                        background: "transparent",
+                                        color: "var(--text-secondary)",
+                                        cursor: "pointer",
+                                        fontSize: "18px",
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "12px" }}>
+                                {selectedOov.definition}
+                            </p>
+
+                            {selectedOov.exampleClaims && selectedOov.exampleClaims.length > 0 && (
+                                <div style={{ marginBottom: "12px" }}>
+                                    <div style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px", color: "var(--text-tertiary)" }}>
+                                        Example claims
+                                    </div>
+                                    <ul style={{ paddingLeft: "18px", margin: 0 }}>
+                                        {selectedOov.exampleClaims.map((c, idx) => (
+                                            <li key={idx} style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                                                {c}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {selectedOov.evidenceTypes && selectedOov.evidenceTypes.length > 0 && (
+                                <div style={{ marginBottom: "12px" }}>
+                                    <div style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px", color: "var(--text-tertiary)" }}>
+                                        Evidence types
+                                    </div>
+                                    <ul style={{ paddingLeft: "18px", margin: 0 }}>
+                                        {selectedOov.evidenceTypes.map((eType, idx) => (
+                                            <li key={idx} style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                                                {eType}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {selectedOov.constraints && (
+                                <div style={{ marginTop: "8px" }}>
+                                    <div style={{ fontSize: "12px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px", color: "var(--text-tertiary)" }}>
+                                        Constraints
+                                    </div>
+                                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: 0 }}>
+                                        {selectedOov.constraints}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </section>
 
             {/* Strategy Promo */}
